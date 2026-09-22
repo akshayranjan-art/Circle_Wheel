@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CreateRouteImport } from './routes/create'
+import { Route as DiamondsRouteImport } from './routes/diamonds'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as GiftsRouteImport } from './routes/gifts'
+import { Route as LudoRouteImport } from './routes/ludo'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StatsRouteImport } from './routes/stats'
@@ -26,9 +29,24 @@ const CreateRoute = CreateRouteImport.update({
   path: '/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiamondsRoute = DiamondsRouteImport.update({
+  id: '/diamonds',
+  path: '/diamonds',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiftsRoute = GiftsRouteImport.update({
+  id: '/gifts',
+  path: '/gifts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LudoRoute = LudoRouteImport.update({
+  id: '/ludo',
+  path: '/ludo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -50,7 +68,10 @@ const StatsRoute = StatsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/diamonds': typeof DiamondsRoute
   '/explore': typeof ExploreRoute
+  '/gifts': typeof GiftsRoute
+  '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
   '/settings': typeof SettingsRoute
   '/stats': typeof StatsRoute
@@ -58,7 +79,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/diamonds': typeof DiamondsRoute
   '/explore': typeof ExploreRoute
+  '/gifts': typeof GiftsRoute
+  '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
   '/settings': typeof SettingsRoute
   '/stats': typeof StatsRoute
@@ -67,21 +91,45 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/diamonds': typeof DiamondsRoute
   '/explore': typeof ExploreRoute
+  '/gifts': typeof GiftsRoute
+  '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
   '/settings': typeof SettingsRoute
   '/stats': typeof StatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/explore' | '/messages' | '/settings' | '/stats'
+  fullPaths:
+    | '/'
+    | '/create'
+    | '/diamonds'
+    | '/explore'
+    | '/gifts'
+    | '/ludo'
+    | '/messages'
+    | '/settings'
+    | '/stats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/explore' | '/messages' | '/settings' | '/stats'
+  to:
+    | '/'
+    | '/create'
+    | '/diamonds'
+    | '/explore'
+    | '/gifts'
+    | '/ludo'
+    | '/messages'
+    | '/settings'
+    | '/stats'
   id:
     | '__root__'
     | '/'
     | '/create'
+    | '/diamonds'
     | '/explore'
+    | '/gifts'
+    | '/ludo'
     | '/messages'
     | '/settings'
     | '/stats'
@@ -90,7 +138,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateRoute: typeof CreateRoute
+  DiamondsRoute: typeof DiamondsRoute
   ExploreRoute: typeof ExploreRoute
+  GiftsRoute: typeof GiftsRoute
+  LudoRoute: typeof LudoRoute
   MessagesRoute: typeof MessagesRoute
   SettingsRoute: typeof SettingsRoute
   StatsRoute: typeof StatsRoute
@@ -112,11 +163,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diamonds': {
+      id: '/diamonds'
+      path: '/diamonds'
+      fullPath: '/diamonds'
+      preLoaderRoute: typeof DiamondsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/explore': {
       id: '/explore'
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gifts': {
+      id: '/gifts'
+      path: '/gifts'
+      fullPath: '/gifts'
+      preLoaderRoute: typeof GiftsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ludo': {
+      id: '/ludo'
+      path: '/ludo'
+      fullPath: '/ludo'
+      preLoaderRoute: typeof LudoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -146,7 +218,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateRoute: CreateRoute,
+  DiamondsRoute: DiamondsRoute,
   ExploreRoute: ExploreRoute,
+  GiftsRoute: GiftsRoute,
+  LudoRoute: LudoRoute,
   MessagesRoute: MessagesRoute,
   SettingsRoute: SettingsRoute,
   StatsRoute: StatsRoute,
