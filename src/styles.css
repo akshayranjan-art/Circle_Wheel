@@ -140,5 +140,100 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    background-image:
+      radial-gradient(
+        circle at 15% 12%,
+        color-mix(in oklab, var(--neon-2, var(--primary)) 16%, transparent),
+        transparent 45%
+      ),
+      radial-gradient(
+        circle at 85% 80%,
+        color-mix(in oklab, var(--neon-1, var(--primary)) 16%, transparent),
+        transparent 45%
+      );
+    background-attachment: fixed;
   }
+}
+
+/* ---- Orbit neon effects ---- */
+
+@keyframes orbit-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes orbit-spin-rev {
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+@keyframes orbit-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 18px color-mix(in oklab, var(--primary) 0%, transparent);
+  }
+}
+
+@utility orbit-ring {
+  animation-duration: calc(28s / var(--orbit-speed, 1));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  box-shadow:
+    inset 0 0 40px color-mix(in oklab, var(--primary) 12%, transparent),
+    0 0 30px color-mix(in oklab, var(--primary) 10%, transparent);
+}
+
+@utility orbit-ring--spin {
+  animation-name: orbit-spin;
+}
+
+@utility orbit-ring--spin-rev {
+  animation-name: orbit-spin-rev;
+  animation-duration: calc(40s / var(--orbit-speed, 1));
+}
+
+@utility orbit-node {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--primary) 18%, transparent),
+    0 6px 24px -6px color-mix(in oklab, var(--neon-1, var(--primary)) 45%, transparent);
+
+  &:hover {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent),
+      0 0 22px color-mix(in oklab, var(--neon-1, var(--primary)) 55%, transparent);
+  }
+}
+
+@utility orbit-node--active {
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--primary) 60%, transparent),
+    0 0 28px color-mix(in oklab, var(--neon-1, var(--primary)) 70%, transparent);
+}
+
+@utility orbit-core {
+  box-shadow:
+    0 0 30px color-mix(in oklab, var(--neon-1, var(--primary)) 65%, transparent),
+    0 0 70px color-mix(in oklab, var(--neon-2, var(--primary)) 40%, transparent);
+}
+
+@utility orbit-core-pulse {
+  animation: orbit-pulse calc(2.4s / var(--orbit-speed, 1)) ease-out infinite;
+}
+
+@utility neon-text {
+  text-shadow:
+    0 0 12px color-mix(in oklab, var(--neon-1, var(--primary)) 60%, transparent),
+    0 0 32px color-mix(in oklab, var(--neon-2, var(--primary)) 35%, transparent);
+}
+
+@utility neon-panel {
+  border: 1px solid color-mix(in oklab, var(--primary) 22%, transparent);
+  background: color-mix(in oklab, var(--card) 70%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 60px -30px color-mix(in oklab, var(--neon-1, var(--primary)) 70%, transparent);
 }

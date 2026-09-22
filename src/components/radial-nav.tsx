@@ -36,7 +36,7 @@ export function RadialNav() {
   const innerCount = twoRings ? Math.ceil(count / 2) : count;
   const size = count > 14 ? 40 : count > 9 ? 44 : 48;
 
-  const [startAngle, endAngle] = LAYOUT_ARC[config.layout] ?? LAYOUT_ARC.fan!;
+  const [startAngle, endAngle] = LAYOUT_ARC[config.layout] ?? [182, 358];
 
   const place = (index: number) => {
     const ring = twoRings && index >= innerCount ? 1 : 0;
