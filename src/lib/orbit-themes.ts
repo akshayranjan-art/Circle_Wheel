@@ -186,5 +186,5 @@ export const FREE_THEME_IDS = ORBIT_THEMES.filter((t) => !t.premium).map(
 );
 
 export function getTheme(id: string) {
-  return ORBIT_THEMES.find((t) => t.id === id) ?? ORBIT_THEMES[0];
+  return ORBIT_THEMES.find((t) => t.id === id) ?? ORBIT_THEMES[0]!;
 }
