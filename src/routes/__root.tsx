@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RadialNav } from "@/components/radial-nav";
 import { OrbitProvider } from "@/components/orbit-provider";
+import { WalletProvider } from "@/components/wallet-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -131,10 +132,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <OrbitProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <RadialNav />
-        <Toaster position="top-center" />
+        <WalletProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <RadialNav />
+          <Toaster position="top-center" />
+        </WalletProvider>
       </OrbitProvider>
     </QueryClientProvider>
   );
