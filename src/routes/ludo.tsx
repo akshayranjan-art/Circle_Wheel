@@ -124,9 +124,9 @@ function LudoPage() {
       if (result.captured.length) {
         again = true;
         // Agar kisi bot ne aapki goti kaati, toh us bot par Revenge Bounty lock ho jayegi
-        if (player !== 0 && result.captured.some(c => c.split('-')[0] === '0')) {
+        if (player !== 0 && result.captured.some(c => c.player === 0)) {
           setBountyTarget(player);
-          toast.error(`🔥 BOUNTY LOCK: Player ${PLAYERS[player].name} targeted for revenge!`);
+          toast.error(`🔥 BOUNTY LOCK: Player ${PLAYERS[player]?.name} targeted for revenge!`);
         }
       }
       if (result.reachedHome) again = true;
@@ -135,7 +135,7 @@ function LudoPage() {
         let reward = 0;
         if (result.captured.length) {
           // Badla multiplier logic: target bot ki goti kaatne par 3x triple rewards milenge!
-          const isBountyHit = bountyTarget !== null && result.captured.some(c => c.split('-')[0] === String(bountyTarget));
+          const isBountyHit = bountyTarget !== null && result.captured.some(c => c.player === bountyTarget);
           const calculatedReward = isBountyHit ? CAPTURE_REWARD * 3 : CAPTURE_REWARD;
           
           reward += result.captured.length * calculatedReward;
@@ -270,7 +270,7 @@ function LudoPage() {
         <div className="flex items-center gap-3">
           {bountyTarget !== null && (
             <div className="bg-red-950/60 border border-red-500/40 text-red-400 text-xs px-3 py-1.5 rounded-full font-bold animate-bounce">
-              🎯 REVENGE BOUNTY ON: {PLAYERS[bountyTarget].name}
+              🎯 REVENGE BOUNTY ON: {PLAYERS[bountyTarget]?.name}
             </div>
           )}
           <div className="neon-panel flex items-center gap-2 rounded-full px-5 py-2.5 bg-slate-900/80 border border-primary/40 shadow-[0_0_15px_rgba(168,85,247,0.2)]">

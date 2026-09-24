@@ -28,7 +28,7 @@ const VEHICLES = [
   { id: "ufo", name: "Neon UFO", emoji: "🛸", price: 3000 },
   { id: "dragon", name: "Fire Dragon", emoji: "🐉", price: 6000 },
 ];
-const BOTS = ["Priya ✨", "Raja King", "Neon Queen", "Dice Don", "Rani 💖"];
+const BOTS: string[] = ["Priya ✨", "Raja King", "Neon Queen", "Dice Don", "Rani 💖"];
 const REPLIES = ["Haha 😂", "Chalo ek match ho jaye 🎲", "Gift bhejo na 🎁", "Goti kaat dunga 😎", "Welcome bhai 🔥", "Kya scene hai?"];
 
 type Msg = { from: string; text: string };
@@ -43,7 +43,7 @@ function Rooms() {
   const [ride, setRide] = useState("bike");
   const [entry, setEntry] = useState<string | null>(null);
   const [tab, setTab] = useState<"room" | "private">("room");
-  const [dm, setDm] = useState(BOTS[0]);
+  const [dm, setDm] = useState<string>("Priya ✨");
   const [friends, setFriends] = useState<string[]>([]);
   const [msgs, setMsgs] = useState<Record<string, Msg[]>>({ room: [{ from: "Raja King", text: "Swagat hai room me! 🔥" }] });
   const [text, setText] = useState("");
@@ -59,13 +59,13 @@ function Rooms() {
     if (!text.trim()) return;
     push(key, { from: "You", text });
     setText("");
-    const who = tab === "room" ? BOTS[Math.floor(Math.random() * BOTS.length)] : dm;
-    setTimeout(() => push(key, { from: who, text: REPLIES[Math.floor(Math.random() * REPLIES.length)] }), 900);
+    const who = (tab === "room" ? BOTS[Math.floor(Math.random() * BOTS.length)] : dm) ?? "Bot";
+    setTimeout(() => push(key, { from: who, text: REPLIES[Math.floor(Math.random() * REPLIES.length)] ?? "🔥" }), 900);
   };
 
   const sit = (i: number) => {
-    if (seats[i] && seats[i] !== "You") return toast("Seat bhari hai");
-    if (locked[i] && seats[i] !== "You") return toast.error("Seat locked 🔒");
+    if (seats[i] && seats[i] !== "You") { toast("Seat bhari hai"); return; }
+    if (locked[i] && seats[i] !== "You") { toast.error("Seat locked 🔒"); return; }
     if (seats[i] === "You") {
       setSeats((s) => s.map((v) => (v === "You" ? null : v)));
       return;
@@ -78,8 +78,8 @@ function Rooms() {
   };
 
   const buyRide = (v: (typeof VEHICLES)[number]) => {
-    if (owned.includes(v.id)) return setRide(v.id);
-    if (!spend(v.price, `Entry vehicle: ${v.name}`)) return toast.error("Diamonds kam hain");
+    if (owned.includes(v.id)) { setRide(v.id); return; }
+    if (!spend(v.price, `Entry vehicle: ${v.name}`)) { toast.error("Diamonds kam hain"); return; }
     setOwned((o) => [...o, v.id]);
     setRide(v.id);
     toast.success(`${v.emoji} ${v.name} unlocked!`);

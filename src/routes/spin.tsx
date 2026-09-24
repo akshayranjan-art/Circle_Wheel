@@ -43,13 +43,13 @@ function SpinPage() {
 
   const pick = () => {
     let r = Math.random() * WEIGHTS.reduce((a, b) => a + b, 0);
-    for (let i = 0; i < WEIGHTS.length; i++) if ((r -= WEIGHTS[i]) < 0) return i;
+    for (let i = 0; i < WEIGHTS.length; i++) if ((r -= WEIGHTS[i] ?? 0) < 0) return i;
     return 0;
   };
 
   const spin = (paid: boolean) => {
     if (spinning) return;
-    if (paid && !spend(PAID, "Lucky wheel spin")) return toast.error("Diamonds kam hain");
+    if (paid && !spend(PAID, "Lucky wheel spin")) { toast.error("Diamonds kam hain"); return; }
     if (!paid) {
       localStorage.setItem(KEY, new Date().toDateString());
       setFreeUsed(true);
@@ -61,7 +61,7 @@ function SpinPage() {
     setAngle(target);
     setTimeout(() => {
       setSpinning(false);
-      const p = PRIZES[i];
+      const p = PRIZES[i] ?? PRIZES[2]!;
       if (p.value) {
         earn(p.value, `Lucky wheel: ${p.label}`);
         toast.success(`🎉 Jeet gaye ${p.label}!`);

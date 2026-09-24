@@ -255,8 +255,8 @@ function AddAppDialog({
   const [emoji, setEmoji] = useState("⭐");
 
   const add = () => {
-    if (!label.trim() || !url.trim()) return toast.error("Naam aur link dono daalo");
-    if (total >= MAX_APPS) return toast.error("40 apps full ho gaye");
+    if (!label.trim() || !url.trim()) { toast.error("Naam aur link dono daalo"); return; }
+    if (total >= MAX_APPS) { toast.error("40 apps full ho gaye"); return; }
     const to = /^[a-z]+:\/\//i.test(url) || url.startsWith("/") ? url : `https://${url}`;
     onSave([...custom, { id: `c-${Date.now()}`, label: label.trim(), to, emoji: emoji || "⭐", custom: true }]);
     setLabel("");
