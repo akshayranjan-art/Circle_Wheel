@@ -15,6 +15,7 @@ export const BUILT_IN_APPS: WheelApp[] = [
   { id: "rooms", label: "Rooms", to: "/rooms", emoji: "🎙️" },
   { id: "spin", label: "Lucky Wheel", to: "/spin", emoji: "🎡" },
   { id: "board", label: "Leaderboard", to: "/leaderboard", emoji: "🏆" },
+  { id: "profile", label: "Profile", to: "/profile", emoji: "👤" },
   { id: "diamonds", label: "Diamonds", to: "/diamonds", emoji: "💎" },
   { id: "gifts", label: "Gifts", to: "/gifts", emoji: "🎁" },
   { id: "messages", label: "Messages", to: "/messages", emoji: "💬" },
