@@ -21,6 +21,7 @@ import {
   legalMoves,
   pickBotMove,
   rollDie,
+  fairRoll,
   tokenCell,
   type PlayerId,
   type Token,
@@ -181,7 +182,7 @@ function LudoPage() {
         ticks += 1;
         if (ticks > 7) {
           clearInterval(spin);
-          const value = Math.floor(Math.random() * dicePowerCap) + 1;
+          const value = fairRoll(dicePowerCap);
           setDie(value);
           setRolling(false);
           
