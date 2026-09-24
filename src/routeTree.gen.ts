@@ -17,6 +17,7 @@ import { Route as GiftsRouteImport } from './routes/gifts'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LudoRouteImport } from './routes/ludo'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SpinRouteImport } from './routes/spin'
@@ -62,6 +63,11 @@ const MessagesRoute = MessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RoomsRoute = RoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/spin': typeof SpinRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/spin': typeof SpinRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/spin': typeof SpinRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/ludo'
     | '/messages'
+    | '/profile'
     | '/rooms'
     | '/settings'
     | '/spin'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/ludo'
     | '/messages'
+    | '/profile'
     | '/rooms'
     | '/settings'
     | '/spin'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/ludo'
     | '/messages'
+    | '/profile'
     | '/rooms'
     | '/settings'
     | '/spin'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   LudoRoute: typeof LudoRoute
   MessagesRoute: typeof MessagesRoute
+  ProfileRoute: typeof ProfileRoute
   RoomsRoute: typeof RoomsRoute
   SettingsRoute: typeof SettingsRoute
   SpinRoute: typeof SpinRoute
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rooms': {
       id: '/rooms'
       path: '/rooms'
@@ -284,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   LudoRoute: LudoRoute,
   MessagesRoute: MessagesRoute,
+  ProfileRoute: ProfileRoute,
   RoomsRoute: RoomsRoute,
   SettingsRoute: SettingsRoute,
   SpinRoute: SpinRoute,

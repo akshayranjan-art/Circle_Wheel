@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useWallet } from "@/components/wallet-provider";
 import { useOrbit } from "@/components/orbit-provider";
 import { GIFTS } from "@/lib/diamond-shop";
-import { THEMES } from "@/lib/orbit-themes";
+import { ORBIT_THEMES as THEMES } from "@/lib/orbit-themes";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
