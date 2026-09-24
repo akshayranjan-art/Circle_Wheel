@@ -78,8 +78,14 @@ export function createTokens(): Token[] {
   return tokens;
 }
 
+/** Fair dice: cryptographic randomness with rejection sampling (no bias). */
 export function rollDie() {
-  return 1 + Math.floor(Math.random() * 6);
+  const c = globalThis.crypto;
+  if (!c?.getRandomValues) return 1 + Math.floor(Math.random() * 6);
+  const buf = new Uint8Array(1);
+  do c.getRandomValues(buf);
+  while ((buf[0] ?? 255) >= 252);
+  return 1 + ((buf[0] ?? 0) % 6);
 }
 
 export function legalMoves(tokens: Token[], player: PlayerId, die: number) {
