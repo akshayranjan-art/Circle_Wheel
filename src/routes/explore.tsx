@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
 // Gaming aur trophy elements render karne ke liye icons import kiye
 import { Gamepad2, Zap, Trophy, Shield, Swords, Users, Target, Sparkles, Gem } from "lucide-react";

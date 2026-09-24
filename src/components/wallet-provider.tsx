@@ -24,6 +24,7 @@ type WalletState = {
   captures: number;
   megaPrizeTier: number;    // Tracking custom unlock tiers
   jackpotStreak: number;    // Daily continuous win streak multiplier
+  dailySpendLimit: number;  // Responsible play: 0 = no limit
 };
 
 const INITIAL: WalletState = {
@@ -34,6 +35,7 @@ const INITIAL: WalletState = {
   captures: 0,
   megaPrizeTier: 1,
   jackpotStreak: 0,
+  dailySpendLimit: 0,
 };
 
 const KEY = "orbit-wallet-v1";
@@ -45,6 +47,8 @@ type Ctx = WalletState & {
   recordCapture: (count: number) => void;
   claimMegaPrize: (tierReward: number) => void; // Naya method premium rewards engine trigger ke liye
   resetJackpotStreak: () => void;
+  setDailySpendLimit: (n: number) => void;
+  spentToday: number;
 };
 
 const WalletContext = createContext<Ctx | null>(null);
@@ -101,6 +105,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       let ok = false;
       commit((s) => {
         if (s.diamonds < amount) return s;
+        if (s.dailySpendLimit > 0) {
+          const today = new Date().toDateString();
+          const spent = s.history
+            .filter((h) => h.amount < 0 && new Date(h.at).toDateString() === today)
+            .reduce((a, h) => a - h.amount, 0);
+          if (spent + amount > s.dailySpendLimit) return s;
+        }
         ok = true;
         return {
           ...s,
@@ -152,9 +163,20 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
+  const setDailySpendLimit = useCallback(
+    (n: number) => commit((s) => ({ ...s, dailySpendLimit: Math.max(0, n) })),
+    [commit],
+  );
+  const today = new Date().toDateString();
+  const spentToday = state.history
+    .filter((h) => h.amount < 0 && new Date(h.at).toDateString() === today)
+    .reduce((a, h) => a - h.amount, 0);
+
   const value = useMemo(
     () => ({
       ...state,
+      setDailySpendLimit,
+      spentToday,
       earn,
       spend,
       addGift,
@@ -163,7 +185,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       claimMegaPrize,
       resetJackpotStreak,
     }),
-    [state, earn, spend, addGift, recordWin, recordCapture, claimMegaPrize, resetJackpotStreak],
+    [state, setDailySpendLimit, spentToday, earn, spend, addGift, recordWin, recordCapture, claimMegaPrize, resetJackpotStreak],
   );
 
   return (

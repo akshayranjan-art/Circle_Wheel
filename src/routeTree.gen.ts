@@ -14,9 +14,13 @@ import { Route as CreateRouteImport } from './routes/create'
 import { Route as DiamondsRouteImport } from './routes/diamonds'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as GiftsRouteImport } from './routes/gifts'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LudoRouteImport } from './routes/ludo'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SpinRouteImport } from './routes/spin'
 import { Route as StatsRouteImport } from './routes/stats'
 
 const IndexRoute = IndexRouteImport.update({
@@ -44,6 +48,11 @@ const GiftsRoute = GiftsRouteImport.update({
   path: '/gifts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LudoRoute = LudoRouteImport.update({
   id: '/ludo',
   path: '/ludo',
@@ -54,9 +63,24 @@ const MessagesRoute = MessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsRoute = RoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpinRoute = SpinRouteImport.update({
+  id: '/spin',
+  path: '/spin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StatsRoute = StatsRouteImport.update({
@@ -71,9 +95,13 @@ export interface FileRoutesByFullPath {
   '/diamonds': typeof DiamondsRoute
   '/explore': typeof ExploreRoute
   '/gifts': typeof GiftsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
+  '/spin': typeof SpinRoute
   '/stats': typeof StatsRoute
 }
 export interface FileRoutesByTo {
@@ -82,9 +110,13 @@ export interface FileRoutesByTo {
   '/diamonds': typeof DiamondsRoute
   '/explore': typeof ExploreRoute
   '/gifts': typeof GiftsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
+  '/spin': typeof SpinRoute
   '/stats': typeof StatsRoute
 }
 export interface FileRoutesById {
@@ -94,9 +126,13 @@ export interface FileRoutesById {
   '/diamonds': typeof DiamondsRoute
   '/explore': typeof ExploreRoute
   '/gifts': typeof GiftsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/ludo': typeof LudoRoute
   '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
+  '/spin': typeof SpinRoute
   '/stats': typeof StatsRoute
 }
 export interface FileRouteTypes {
@@ -107,9 +143,13 @@ export interface FileRouteTypes {
     | '/diamonds'
     | '/explore'
     | '/gifts'
+    | '/leaderboard'
     | '/ludo'
     | '/messages'
+    | '/profile'
+    | '/rooms'
     | '/settings'
+    | '/spin'
     | '/stats'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -118,9 +158,13 @@ export interface FileRouteTypes {
     | '/diamonds'
     | '/explore'
     | '/gifts'
+    | '/leaderboard'
     | '/ludo'
     | '/messages'
+    | '/profile'
+    | '/rooms'
     | '/settings'
+    | '/spin'
     | '/stats'
   id:
     | '__root__'
@@ -129,9 +173,13 @@ export interface FileRouteTypes {
     | '/diamonds'
     | '/explore'
     | '/gifts'
+    | '/leaderboard'
     | '/ludo'
     | '/messages'
+    | '/profile'
+    | '/rooms'
     | '/settings'
+    | '/spin'
     | '/stats'
   fileRoutesById: FileRoutesById
 }
@@ -141,9 +189,13 @@ export interface RootRouteChildren {
   DiamondsRoute: typeof DiamondsRoute
   ExploreRoute: typeof ExploreRoute
   GiftsRoute: typeof GiftsRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   LudoRoute: typeof LudoRoute
   MessagesRoute: typeof MessagesRoute
+  ProfileRoute: typeof ProfileRoute
+  RoomsRoute: typeof RoomsRoute
   SettingsRoute: typeof SettingsRoute
+  SpinRoute: typeof SpinRoute
   StatsRoute: typeof StatsRoute
 }
 
@@ -184,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GiftsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ludo': {
       id: '/ludo'
       path: '/ludo'
@@ -198,11 +257,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms': {
+      id: '/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/spin': {
+      id: '/spin'
+      path: '/spin'
+      fullPath: '/spin'
+      preLoaderRoute: typeof SpinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stats': {
@@ -221,9 +301,13 @@ const rootRouteChildren: RootRouteChildren = {
   DiamondsRoute: DiamondsRoute,
   ExploreRoute: ExploreRoute,
   GiftsRoute: GiftsRoute,
+  LeaderboardRoute: LeaderboardRoute,
   LudoRoute: LudoRoute,
   MessagesRoute: MessagesRoute,
+  ProfileRoute: ProfileRoute,
+  RoomsRoute: RoomsRoute,
   SettingsRoute: SettingsRoute,
+  SpinRoute: SpinRoute,
   StatsRoute: StatsRoute,
 }
 export const routeTree = rootRouteImport
