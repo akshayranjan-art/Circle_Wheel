@@ -18,6 +18,8 @@ import {
   Radio,
   Clock,
   BookOpen,
+  MessageSquare,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useWallet } from "@/components/wallet-provider";
@@ -27,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { GameRulesDialog } from "@/components/game-rules-dialog";
+import { LoveBirdsRadar } from "@/components/love-birds-radar";
 
 export const Route = createFileRoute("/rooms")({
   head: () => ({
@@ -170,7 +173,8 @@ function Rooms() {
   const [roomThemeOverride, setRoomThemeOverride] = useState<string | null>(null);
 
   // Chat & Whisper
-  const [tab, setTab] = useState<"room" | "whisper" | "matchmaking" | "clan">("room");
+  const [tab, setTab] = useState<"room" | "whisper">("room");
+  const [socialTab, setSocialTab] = useState<"love-birds" | "matchmaking" | "clan">("love-birds");
   const [whisperTarget, setWhisperTarget] = useState<string>("Priya ✨");
   const [friends, setFriends] = useState<string[]>([]);
   const [msgs, setMsgs] = useState<Record<string, Msg[]>>({
@@ -422,8 +426,20 @@ function Rooms() {
             const isSpectatorSeat = i >= 4;
             const isMe = s === "You";
 
+            // Seated Love-Birds check: Seat 0 (Raja King ♂) & Seat 2 (Priya ✨ ♀) or User + Partner
+            const isLoveBirdsSeated =
+              (i === 0 && seats[2] === "Priya ✨") ||
+              (i === 2 && seats[0] === "Raja King") ||
+              (isMe && Boolean(loveBirdsPartner) && seats.includes(loveBirdsPartner)) ||
+              (Boolean(s) && s === loveBirdsPartner);
+
             return (
-              <div key={i} className="flex flex-col items-center gap-1.5">
+              <div key={i} className="relative flex flex-col items-center gap-1.5">
+                {isLoveBirdsSeated && (
+                  <span className="absolute -top-3 z-20 flex items-center gap-0.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 px-1.5 py-0.5 text-[8px] font-black text-white shadow-[0_0_10px_rgba(236,72,153,0.8)] animate-pulse whitespace-nowrap">
+                    💖 Love-Bird
+                  </span>
+                )}
                 <button
                   onClick={() => sit(i)}
                   className={cn(
@@ -431,6 +447,8 @@ function Rooms() {
                     isSpectatorSeat
                       ? "border-amber-500/40 bg-amber-950/20"
                       : "border-cyan-500/40 bg-slate-950",
+                    isLoveBirdsSeated &&
+                      "ring-2 ring-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.6)] border-pink-400 bg-pink-950/30",
                     isMe && !muted && "orbit-core-pulse ring-2 ring-cyan-400",
                     isMe && "ring-2 ring-primary",
                   )}
@@ -447,7 +465,12 @@ function Rooms() {
                   )}
                 </button>
 
-                <span className="max-w-[70px] truncate text-[11px] font-bold text-slate-300">
+                <span
+                  className={cn(
+                    "max-w-[70px] truncate text-[11px] font-bold",
+                    isLoveBirdsSeated ? "text-pink-300 font-black drop-shadow" : "text-slate-300",
+                  )}
+                >
                   {s ?? (locked[i] ? "Locked" : isSpectatorSeat ? "VIP Seat" : "Open")}
                 </span>
 
@@ -460,6 +483,31 @@ function Rooms() {
               </div>
             );
           })}
+        </div>
+
+        {/* Seated Love-Birds Synergy Indicator Banner */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-gradient-to-r from-pink-950/50 via-purple-950/40 to-slate-950 px-3.5 py-2.5 border border-pink-500/40 text-xs shadow-[0_0_20px_rgba(236,72,153,0.2)]">
+          <div className="flex items-center gap-2">
+            <Heart className="h-4 w-4 fill-current text-pink-400 animate-pulse" />
+            <span className="font-bold text-pink-200">
+              Compatible Seated Pair Detected: <b className="text-white">Raja King ♂ (Seat 1)</b> ✕{" "}
+              <b className="text-white">Priya ✨ ♀ (Seat 3)</b>
+            </span>
+            <span className="rounded-full bg-pink-500/20 px-2 py-0.5 text-[10px] font-black text-pink-300 border border-pink-500/40">
+              ⚡ 96% Match
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              soundFX.playTick();
+              setSocialTab("love-birds");
+            }}
+            className="flex items-center gap-1 text-[11px] font-black text-pink-400 hover:text-white underline"
+          >
+            <span>Open Love-Birds Radar & Claim 50 💎</span>
+            <Sparkles className="h-3 w-3" />
+          </button>
         </div>
 
         {/* Audio Controls: Mute, AI Voice Modulator, Spatial Audio */}
@@ -746,34 +794,58 @@ function Rooms() {
         </div>
       </div>
 
-      {/* Multi-Tab Social Sections: Matchmaking Friend Finder, Clan Lounge */}
+      {/* Multi-Tab Social Sections: Love-Birds Radar & 50 💎 Bonus, Matchmaking Friend Finder, Clan Lounge */}
       <div className="mt-6 flex flex-wrap gap-2 border-b border-slate-800 pb-3">
         <button
-          onClick={() => setTab("matchmaking")}
+          onClick={() => {
+            soundFX.playTick();
+            setSocialTab("love-birds");
+          }}
+          className={cn(
+            "flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold transition-all",
+            socialTab === "love-birds"
+              ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black shadow-[0_0_15px_rgba(236,72,153,0.5)]"
+              : "bg-slate-900 text-slate-400 hover:text-white",
+          )}
+        >
+          <Heart className="h-3.5 w-3.5 fill-current text-pink-300" />
+          <span>Love-Birds Radar & 50 💎 Bonus</span>
+        </button>
+        <button
+          onClick={() => {
+            soundFX.playTick();
+            setSocialTab("matchmaking");
+          }}
           className={cn(
             "rounded-full px-4 py-1.5 text-xs font-bold transition-all",
-            tab === "matchmaking"
+            socialTab === "matchmaking"
               ? "bg-primary text-slate-950 font-black shadow"
-              : "bg-slate-900 text-slate-400",
+              : "bg-slate-900 text-slate-400 hover:text-white",
           )}
         >
           Ludo Match Finder 🔥
         </button>
         <button
-          onClick={() => setTab("clan")}
+          onClick={() => {
+            soundFX.playTick();
+            setSocialTab("clan");
+          }}
           className={cn(
             "rounded-full px-4 py-1.5 text-xs font-bold transition-all",
-            tab === "clan"
+            socialTab === "clan"
               ? "bg-primary text-slate-950 font-black shadow"
-              : "bg-slate-900 text-slate-400",
+              : "bg-slate-900 text-slate-400 hover:text-white",
           )}
         >
           Tribal Clan Lounge (50-Seat) 🛡️
         </button>
       </div>
 
-      {/* TAB 3: Tinder-Style Matchmaking Friend Finder (Feature #29) */}
-      {tab === "matchmaking" && (
+      {/* TAB 1: Love-Birds Stats Radar & 50 💎 Bonus Component */}
+      {socialTab === "love-birds" && <LoveBirdsRadar />}
+
+      {/* TAB 2: Tinder-Style Matchmaking Friend Finder (Feature #29) */}
+      {socialTab === "matchmaking" && (
         <div className="mt-4 flex flex-col items-center">
           <div className="w-full max-w-sm rounded-3xl border-2 border-primary bg-slate-950 p-6 text-center shadow-[0_0_35px_rgba(168,85,247,0.3)] animate-scale-in">
             <div className="flex items-center justify-between mb-2">
@@ -844,8 +916,8 @@ function Rooms() {
         </div>
       )}
 
-      {/* TAB 4: Tribal Clan 50-Member Mega Lounge (Feature #30) */}
-      {tab === "clan" && (
+      {/* TAB 3: Tribal Clan 50-Member Mega Lounge (Feature #30) */}
+      {socialTab === "clan" && (
         <div className="mt-4 rounded-3xl bg-slate-900/60 p-6 border border-slate-800">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>

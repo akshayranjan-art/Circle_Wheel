@@ -364,6 +364,36 @@
   opacity: 1;
   pointer-events: auto;
 }
+.wheel-shell--open .wheel-ring {
+  animation: wheel-ring-spin-cw 32s linear infinite;
+  will-change: transform;
+}
+.wheel-shell--open .wheel-ring--outer {
+  animation: wheel-ring-spin-ccw 44s linear infinite;
+  will-change: transform;
+}
+@keyframes wheel-ring-spin-cw {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@keyframes wheel-ring-spin-ccw {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wheel-shell--open .wheel-ring,
+  .wheel-shell--open .wheel-ring--outer {
+    animation: none;
+  }
+}
 .wheel-shell::before {
   content: "";
   position: absolute;
@@ -389,8 +419,8 @@
   pointer-events: none;
 }
 .wheel-ring--outer {
-  border-style: solid;
-  border-color: color-mix(in oklab, var(--neon-2, var(--accent)) 35%, transparent);
+  border-style: dashed;
+  border-color: color-mix(in oklab, var(--neon-2, var(--accent)) 45%, transparent);
 }
 .wheel-node {
   background:

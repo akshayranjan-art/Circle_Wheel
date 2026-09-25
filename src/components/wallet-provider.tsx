@@ -124,6 +124,7 @@ type Ctx = WalletState & {
   unlockChatFrame: (f: ChatFrame, price: number) => boolean;
   pairLoveBirds: (partnerName: string, partnerGender: Gender) => { ok: boolean; reason?: string };
   claimLoveDividend: () => { ok: boolean; message: string };
+  addLiveSeconds: (sec: number) => void;
   dismissAnnouncement: () => void;
   triggerMilestoneBroadcast: (girlName: string) => void;
 };
@@ -497,25 +498,26 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
-  // Female 50 Diamonds Daily Bonus Logic (Requires >= 10 mins active today)
+  // 50 Diamonds Daily Love-Birds Bonus Logic (Requires Male ♂ ✕ Female ♀ pairing & >= 10 mins active today)
   const claimLoveDividend = useCallback(() => {
     let result = { ok: false, message: "" };
     const today = new Date().toDateString();
 
     commit((s) => {
-      if (s.userGender !== "female") {
+      if (!s.loveBirdsPartner) {
         result = {
           ok: false,
           message:
-            "50 💎 Daily Love Dividend is exclusively awarded to the female Love Bird partner!",
+            "No active Love-Birds partner! Match with a compatible partner first in Voice Lounge.",
         };
         return s;
       }
 
-      if (!s.loveBirdsPartner) {
+      // Strictly enforce Male ♂ ✕ Female ♀ pairing
+      if (s.userGender === s.loveBirdsPartnerGender) {
         result = {
           ok: false,
-          message: "No active Love Bird partner! Match with a male player first.",
+          message: `Love-Birds matching strictly pairs Male ♂ and Female ♀! (You are ${s.userGender}, partner is ${s.loveBirdsPartnerGender})`,
         };
         return s;
       }
@@ -523,7 +525,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (s.claimedLoveDividendToday === today) {
         result = {
           ok: false,
-          message: "Already claimed your 50 💎 Love Dividend today! Come back tomorrow.",
+          message: "Already claimed your 50 💎 Daily Love-Birds Bonus today! Come back tomorrow.",
         };
         return s;
       }
@@ -534,7 +536,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         const remainingMinutes = Math.ceil((MIN_LIVE_SECONDS - s.dailyLiveSeconds) / 60);
         result = {
           ok: false,
-          message: `Rule: Roz kam se kam 10 minutes game me live rehna zaroori hai! ${remainingMinutes} more minutes required. (Current: ${Math.floor(s.dailyLiveSeconds / 60)}m)`,
+          message: `Rule: Roz kam se kam 10 minutes voice room me live rehna zaroori hai! ${remainingMinutes} more minutes required. (Current: ${Math.floor(s.dailyLiveSeconds / 60)}m)`,
         };
         return s;
       }
@@ -543,20 +545,29 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       soundFX.playSpectatorBomb("cheer");
       result = {
         ok: true,
-        message: "💖 50 Diamonds Daily Love Dividend successfully credited to your wallet!",
+        message: "💖 50 Diamonds Daily Love-Birds Bonus successfully credited to your wallet!",
       };
 
       return {
         ...s,
         diamonds: s.diamonds + 50,
         claimedLoveDividendToday: today,
-        history: log(s, "💖 50 💎 Daily Love Dividend (10+ min live bonus)", 50),
-        recentMilestoneAnnouncement: `📢 TODAY'S ANNOUNCEMENT: Priya ✨ completed 50 Love Birds matches and claimed 50 💎 Daily Love Dividend!`,
+        history: log(s, "💖 50 💎 Daily Love-Birds Bonus (10+ min live bonus)", 50),
+        recentMilestoneAnnouncement: `📢 TODAY'S ANNOUNCEMENT: ${s.loveBirdsPartner} & You completed 10m voice room live and claimed 50 💎 Daily Love Dividend!`,
       };
     });
 
     return result;
   }, [commit]);
+
+  const addLiveSeconds = useCallback(
+    (sec: number) =>
+      commit((s) => ({
+        ...s,
+        dailyLiveSeconds: s.dailyLiveSeconds + sec,
+      })),
+    [commit],
+  );
 
   const dismissAnnouncement = useCallback(() => {
     commit((s) => ({ ...s, recentMilestoneAnnouncement: null }));
@@ -606,6 +617,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       unlockChatFrame,
       pairLoveBirds,
       claimLoveDividend,
+      addLiveSeconds,
       dismissAnnouncement,
       triggerMilestoneBroadcast,
     }),
@@ -637,6 +649,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       unlockChatFrame,
       pairLoveBirds,
       claimLoveDividend,
+      addLiveSeconds,
       dismissAnnouncement,
       triggerMilestoneBroadcast,
     ],

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Dice5,
@@ -444,10 +444,13 @@ export function LudoPage() {
     }
   }, [turn, phase, die, tokens, winner, roll, later, nextTurn, resolveMove, t.yourTurn]);
 
-  const movable =
-    turn === 0 && phase === "move" && die
-      ? new Set(legalMoves(tokens, 0, die).map((t) => t.id))
-      : new Set<string>();
+  const movable = useMemo(
+    () =>
+      turn === 0 && phase === "move" && die
+        ? new Set(legalMoves(tokens, 0, die).map((t) => t.id))
+        : new Set<string>(),
+    [turn, phase, die, tokens],
+  );
 
   const movableList = useMemo(() => Array.from(movable), [movable]);
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
@@ -499,7 +502,19 @@ export function LudoPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [movableList, selectedTokenId, turn, phase, rolling, winner, die, tokens, roll, resolveMove, movable]);
+  }, [
+    movableList,
+    selectedTokenId,
+    turn,
+    phase,
+    rolling,
+    winner,
+    die,
+    tokens,
+    roll,
+    resolveMove,
+    movable,
+  ]);
 
   const onTokenClick = (token: Token) => {
     if (!movable.has(token.id) || !die) return;

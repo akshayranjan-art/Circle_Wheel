@@ -284,8 +284,9 @@ export function DashboardLauncher() {
   const [isScanningFingerprint, setIsScanningFingerprint] = useState(false);
 
   // Time & Status
-  const [currentTime, setCurrentTime] = useState("");
-  const [currentDate, setCurrentDate] = useState("");
+  const [mounted, setMounted] = useState(false);
+  const [currentTime, setCurrentTime] = useState("05:14");
+  const [currentDate, setCurrentDate] = useState("Today");
 
   // Wallpaper Theme
   const [activeWallpaper, setActiveWallpaper] = useState(0);
@@ -319,6 +320,7 @@ export function DashboardLauncher() {
 
   // Clock Ticker
   useEffect(() => {
+    setMounted(true);
     const update = () => {
       const now = new Date();
       setCurrentTime(
@@ -485,10 +487,16 @@ export function DashboardLauncher() {
 
           {/* Center Holographic Clock */}
           <div className="flex flex-col items-center mt-10">
-            <h1 className="text-7xl font-black tracking-tight text-white drop-shadow-[0_0_35px_rgba(6,182,212,0.8)] sm:text-8xl font-mono">
-              {currentTime || "05:14"}
+            <h1
+              suppressHydrationWarning
+              className="text-7xl font-black tracking-tight text-white drop-shadow-[0_0_35px_rgba(6,182,212,0.8)] sm:text-8xl font-mono"
+            >
+              {currentTime}
             </h1>
-            <p className="mt-2 text-base font-bold uppercase tracking-widest text-cyan-300">
+            <p
+              suppressHydrationWarning
+              className="mt-2 text-base font-bold uppercase tracking-widest text-cyan-300"
+            >
               {currentDate}
             </p>
             <div className="mt-6 flex items-center gap-2 rounded-full bg-slate-900/80 px-4 py-1.5 border border-cyan-500/40 text-xs font-bold text-slate-300">
@@ -534,8 +542,11 @@ export function DashboardLauncher() {
       <header className="relative z-30 mx-auto flex max-w-6xl items-center justify-between px-4 py-3 border-b border-white/10 text-xs">
         {/* Left: Clock & Network */}
         <div className="flex items-center gap-3">
-          <span className="font-mono text-sm font-bold text-white drop-shadow">
-            {currentTime || "05:14"}
+          <span
+            suppressHydrationWarning
+            className="font-mono text-sm font-bold text-white drop-shadow"
+          >
+            {currentTime}
           </span>
           <div className="hidden sm:flex items-center gap-1.5 text-slate-400 font-bold">
             <Signal className="h-3 w-3 text-cyan-400" />
@@ -592,10 +603,16 @@ export function DashboardLauncher() {
       <main className="relative z-20 mx-auto max-w-6xl px-4 pt-6 pb-40">
         {/* HERO WIDGET: Digital Clock & Search Bar */}
         <div className="flex flex-col items-center text-center mb-8">
-          <h2 className="font-mono text-5xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
-            {currentTime || "05:14"}
+          <h2
+            suppressHydrationWarning
+            className="font-mono text-5xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+          >
+            {currentTime}
           </h2>
-          <p className="mt-1 text-xs sm:text-sm font-bold uppercase tracking-widest text-cyan-300">
+          <p
+            suppressHydrationWarning
+            className="mt-1 text-xs sm:text-sm font-bold uppercase tracking-widest text-cyan-300"
+          >
             {currentDate} • Cyber Hub
           </p>
 
@@ -767,8 +784,8 @@ export function DashboardLauncher() {
                   const angle = (idx * 360) / rotatorApps.length;
                   const rad = (angle * Math.PI) / 180;
                   const radius = 110;
-                  const x = Math.cos(rad) * radius;
-                  const y = Math.sin(rad) * radius;
+                  const posX = Math.round(130 + Math.cos(rad) * radius);
+                  const posY = Math.round(140 + Math.sin(rad) * radius);
 
                   return (
                     <button
@@ -780,7 +797,7 @@ export function DashboardLauncher() {
                         }
                       }}
                       style={{
-                        transform: `translate(calc(-50% + ${130 + x}px), calc(-50% + ${140 + y}px))`,
+                        transform: `translate(calc(-50% + ${posX}px), calc(-50% + ${posY}px))`,
                       }}
                       className="absolute left-1/2 top-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 border-2 border-cyan-400 text-lg shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:scale-125 transition-transform"
                       title={app.name}
