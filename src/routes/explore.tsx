@@ -10,7 +10,11 @@ export const Route = createFileRoute("/explore")({
   head: () => ({
     meta: [
       { title: "Super Ludo Mini-Games Arena — Orbit" },
-      { name: "description", content: "Explore custom 4-10 super dice game formats, speed matches, and elite cash pools." },
+      {
+        name: "description",
+        content:
+          "Explore custom 4-10 super dice game formats, speed matches, and elite cash pools.",
+      },
       { property: "og:title", content: "Super Ludo Mini-Games Arena — Orbit" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,7 +34,7 @@ const ARENA_CHALLENGES = [
     prize: 180,
     players: "1v1 Quick Dual",
     color: "from-cyan-500 to-blue-600",
-    glow: "shadow-cyan-950/50 hover:border-cyan-400"
+    glow: "shadow-cyan-950/50 hover:border-cyan-400",
   },
   {
     id: "super_10_chaos",
@@ -41,7 +45,7 @@ const ARENA_CHALLENGES = [
     prize: 360,
     players: "4-Player Battle",
     color: "from-purple-500 to-indigo-600",
-    glow: "shadow-purple-950/50 hover:border-purple-400"
+    glow: "shadow-purple-950/50 hover:border-purple-400",
   },
   {
     id: "bounty_hunters",
@@ -52,7 +56,7 @@ const ARENA_CHALLENGES = [
     prize: 900,
     players: "4-Player FFA",
     color: "from-red-500 to-orange-600",
-    glow: "shadow-red-950/50 hover:border-red-400"
+    glow: "shadow-red-950/50 hover:border-red-400",
   },
   {
     id: "vip_grandmaster",
@@ -63,8 +67,8 @@ const ARENA_CHALLENGES = [
     prize: 2000,
     players: "Championship Grid",
     color: "from-amber-500 to-yellow-600",
-    glow: "shadow-amber-950/50 hover:border-amber-400"
-  }
+    glow: "shadow-amber-950/50 hover:border-amber-400",
+  },
 ];
 function ExplorePage() {
   const { diamonds, spend } = useWallet();
@@ -79,7 +83,7 @@ function ExplorePage() {
 
     toast.success(`⚔️ MATCHMAKING LOCKED`, {
       description: `Entering ${lobbyName}. Preparing game tracks framework loops...`,
-      icon: "🎮"
+      icon: "🎮",
     });
   };
 
@@ -95,7 +99,8 @@ function ExplorePage() {
             Wander the collection.
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Fresh picks, trending pieces, high-tech formats and hidden gems — all one single tap away from the custom rotating radial hub controls wheel.
+            Fresh picks, trending pieces, high-tech formats and hidden gems — all one single tap
+            away from the custom rotating radial hub controls wheel.
           </p>
         </div>
 
@@ -115,14 +120,24 @@ function ExplorePage() {
               key={challenge.id}
               className={cn(
                 "neon-panel group relative overflow-hidden rounded-2xl p-6 bg-slate-950/90 border border-slate-900/80 transition-all duration-300 hover:-translate-y-1 shadow-xl",
-                challenge.glow
+                challenge.glow,
               )}
             >
               {/* Backside abstract dynamic styling vector shadows masks */}
-              <div className={cn("absolute -right-10 -top-10 w-32 h-32 bg-gradient-to-br opacity-5 rounded-full blur-xl transition-all duration-500 group-hover:scale-125 group-hover:opacity-10", challenge.color)} />
+              <div
+                className={cn(
+                  "absolute -right-10 -top-10 w-32 h-32 bg-gradient-to-br opacity-5 rounded-full blur-xl transition-all duration-500 group-hover:scale-125 group-hover:opacity-10",
+                  challenge.color,
+                )}
+              />
 
               <div className="flex items-start justify-between gap-4">
-                <div className={cn("p-3 rounded-xl bg-gradient-to-br text-white shadow-lg", challenge.color)}>
+                <div
+                  className={cn(
+                    "p-3 rounded-xl bg-gradient-to-br text-white shadow-lg",
+                    challenge.color,
+                  )}
+                >
                   <Icon className="w-6 h-6 group-hover:rotate-6 transition-transform" />
                 </div>
                 <span className="text-[10px] font-black uppercase bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded-md tracking-widest flex items-center gap-1">
@@ -133,7 +148,7 @@ function ExplorePage() {
               <h3 className="text-lg font-black text-slate-200 mt-4 tracking-wide group-hover:text-white transition-colors">
                 {challenge.title}
               </h3>
-              
+
               <p className="text-xs font-medium text-slate-400 mt-2 leading-relaxed h-12 overflow-hidden">
                 {challenge.desc}
               </p>
@@ -142,20 +157,24 @@ function ExplorePage() {
               <div className="mt-6 flex items-center justify-between border-t border-slate-900/60 pt-4 bg-slate-900/10 rounded-xl px-2">
                 <div className="flex items-center gap-4">
                   <div>
-                    <span className="text-[9px] font-bold text-slate-500 uppercase block tracking-wider">Entry Fee</span>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block tracking-wider">
+                      Entry Fee
+                    </span>
                     <span className="text-sm font-black text-slate-300 flex items-center gap-0.5 font-mono">
                       {challenge.entry} 💎
                     </span>
                   </div>
                   <div className="border-l border-slate-900 h-6 pl-4">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase block tracking-wider">Prize Pool</span>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block tracking-wider">
+                      Prize Pool
+                    </span>
                     <span className="text-sm font-black text-amber-400 flex items-center gap-0.5 font-mono animate-pulse">
                       {challenge.prize} 💎
                     </span>
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   size="sm"
                   onClick={() => handleJoinLobby(challenge.title, challenge.entry)}
                   className="bg-slate-900 hover:bg-primary border border-slate-800 hover:border-transparent text-slate-200 hover:text-slate-950 font-black text-xs px-4 h-8 uppercase tracking-wider rounded-lg transition-all"
@@ -170,11 +189,19 @@ function ExplorePage() {
 
       {/* Global Quick Actions Footer Shortcuts */}
       <div className="mt-12 flex justify-center items-center gap-4 animate-in fade-in duration-700">
-        <Button asChild variant="ghost" className="text-xs font-bold uppercase text-slate-500 hover:text-white tracking-widest">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-xs font-bold uppercase text-slate-500 hover:text-white tracking-widest"
+        >
           <Link to="/ludo">◀ Return to Arena Base</Link>
         </Button>
         <span className="h-4 w-px bg-slate-800" />
-        <Button asChild variant="ghost" className="text-xs font-bold uppercase text-slate-500 hover:text-white tracking-widest">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-xs font-bold uppercase text-slate-500 hover:text-white tracking-widest"
+        >
           <Link to="/settings">Deck Settings ▶</Link>
         </Button>
       </div>

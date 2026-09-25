@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RadialNav } from "@/components/radial-nav";
 import { OrbitProvider } from "@/components/orbit-provider";
 import { WalletProvider } from "@/components/wallet-provider";
+import { LanguageProvider } from "@/lib/language-context";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -84,15 +85,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Orbit — Circular Navigation" },
       {
         name: "description",
-        content:
-          "A radial navigation menu with icon buttons arranged around a central toggle.",
+        content: "A radial navigation menu with icon buttons arranged around a central toggle.",
       },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Orbit — Circular Navigation" },
       {
         property: "og:description",
-        content:
-          "A radial navigation menu with icon buttons arranged around a central toggle.",
+        content: "A radial navigation menu with icon buttons arranged around a central toggle.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -132,12 +131,14 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <OrbitProvider>
-        <WalletProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-          <RadialNav />
-          <Toaster position="top-center" />
-        </WalletProvider>
+        <LanguageProvider>
+          <WalletProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <RadialNav />
+            <Toaster position="top-center" />
+          </WalletProvider>
+        </LanguageProvider>
       </OrbitProvider>
     </QueryClientProvider>
   );

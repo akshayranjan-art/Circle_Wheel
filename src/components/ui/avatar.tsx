@@ -13,7 +13,7 @@ const Avatar = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-slate-800 bg-slate-950 transition-all duration-300 hover:scale-110 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.45)] ring-1 ring-white/5",
-      className
+      className,
     )}
     {...props}
   />

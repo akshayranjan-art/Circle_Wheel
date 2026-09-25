@@ -55,9 +55,7 @@ export function OrbitProvider({ children }: { children: ReactNode }) {
         setConfig((c) => ({
           ...c,
           ...parsed,
-          unlocked: Array.from(
-            new Set([...FREE_THEME_IDS, ...(parsed.unlocked ?? [])]),
-          ),
+          unlocked: Array.from(new Set([...FREE_THEME_IDS, ...(parsed.unlocked ?? [])])),
         }));
       }
     } catch {
@@ -111,14 +109,9 @@ export function OrbitProvider({ children }: { children: ReactNode }) {
     persist(DEFAULTS);
   }, [persist]);
 
-  const value = useMemo(
-    () => ({ config, update, unlock, reset }),
-    [config, update, unlock, reset],
-  );
+  const value = useMemo(() => ({ config, update, unlock, reset }), [config, update, unlock, reset]);
 
-  return (
-    <OrbitContext.Provider value={value}>{children}</OrbitContext.Provider>
-  );
+  return <OrbitContext.Provider value={value}>{children}</OrbitContext.Provider>;
 }
 
 export function useOrbit() {

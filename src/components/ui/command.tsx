@@ -39,7 +39,10 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b border-slate-900 px-4 group bg-slate-900/10" cmdk-input-wrapper="">
+  <div
+    className="flex items-center border-b border-slate-900 px-4 group bg-slate-900/10"
+    cmdk-input-wrapper=""
+  >
     <Search className="mr-2 h-4 w-4 shrink-0 text-slate-500 transition-colors group-focus-within:text-cyan-400" />
     <CommandPrimitive.Input
       ref={ref}
@@ -61,7 +64,10 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-[320px] overflow-y-auto overflow-x-hidden p-2 scrollbar-thin scrollbar-thumb-slate-900", className)}
+    className={cn(
+      "max-h-[320px] overflow-y-auto overflow-x-hidden p-2 scrollbar-thin scrollbar-thumb-slate-900",
+      className,
+    )}
     {...props}
   />
 ));
@@ -72,7 +78,11 @@ const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
 >((props, ref) => (
-  <CommandPrimitive.Empty ref={ref} className="py-8 text-center text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-900/5 rounded-xl border border-dashed border-slate-900 m-2" {...props} />
+  <CommandPrimitive.Empty
+    ref={ref}
+    className="py-8 text-center text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-900/5 rounded-xl border border-dashed border-slate-900 m-2"
+    {...props}
+  />
 ));
 
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
@@ -128,7 +138,10 @@ CommandItem.displayName = CommandPrimitive.Item.displayName;
 const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
     <span
-      className={cn("ml-auto text-[10px] font-black font-mono tracking-widest text-slate-600 bg-slate-950 px-1.5 py-0.5 border border-slate-900 rounded", className)}
+      className={cn(
+        "ml-auto text-[10px] font-black font-mono tracking-widest text-slate-600 bg-slate-950 px-1.5 py-0.5 border border-slate-900 rounded",
+        className,
+      )}
       {...props}
     />
   );

@@ -55,7 +55,14 @@ export const GIFTS: Gift[] = [
   { id: "scooter", name: "Street Scooter", emoji: "🛵", price: 90, category: "Bikes" },
   { id: "bike", name: "Racer Bike", emoji: "🏍️", price: 300, category: "Bikes" },
   { id: "cycle", name: "Turbo Cycle", emoji: "🚲", price: 55, category: "Bikes" },
-  { id: "superbike", name: "Neon Superbike", emoji: "🏁", price: 1200, category: "Bikes", rare: true },
+  {
+    id: "superbike",
+    name: "Neon Superbike",
+    emoji: "🏁",
+    price: 1200,
+    category: "Bikes",
+    rare: true,
+  },
   { id: "helmet", name: "Chrome Helmet", emoji: "⛑️", price: 120, category: "Bikes" },
   { id: "fuel", name: "Nitro Can", emoji: "⛽", price: 35, category: "Bikes" },
 
@@ -82,10 +89,4 @@ export const GIFTS: Gift[] = [
   { id: "trophy", name: "Champion Cup", emoji: "🏆", price: 350, category: "Party" },
 ];
 
-export const GIFT_CATEGORIES = [
-  "Love",
-  "Bikes",
-  "Luxury",
-  "Sci-Fi",
-  "Party",
-] as const;
+export const GIFT_CATEGORIES = ["Love", "Bikes", "Luxury", "Sci-Fi", "Party"] as const;

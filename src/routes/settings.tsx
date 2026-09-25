@@ -55,7 +55,7 @@ function SettingsPage() {
   };
   const confirmUnlock = () => {
     if (!pending) return;
-    
+
     // Check points deduction calculation logic directly from your wallet
     if (!spend(pending.price, `Unlocked ${pending.name} Board Skin`)) {
       toast.error("Not enough diamonds in your vault!", {
@@ -83,14 +83,17 @@ function SettingsPage() {
             Build your orbit.
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Ten ultra sci-fi neon themes, five free and five premium unlockable via live gaming diamonds, plus complete terminal parameter adjustments.
+            Ten ultra sci-fi neon themes, five free and five premium unlockable via live gaming
+            diamonds, plus complete terminal parameter adjustments.
           </p>
         </div>
 
         {/* Real-time diamond value panel tracking */}
         <div className="neon-panel flex items-center gap-2 rounded-full px-5 py-2.5 bg-slate-900/60 border border-primary/30">
           <Gem className="h-4 w-4 text-primary animate-pulse" />
-          <span className="text-sm font-black tabular-nums text-white">{diamonds} 💎 AVAILABLE</span>
+          <span className="text-sm font-black tabular-nums text-white">
+            {diamonds} 💎 AVAILABLE
+          </span>
         </div>
       </div>
 
@@ -123,7 +126,6 @@ function SettingsPage() {
       </Section>
       <Section title="Quantum Radial Layout Settings" hint="Fine-tune variables">
         <div className="neon-panel space-y-7 rounded-2xl p-6 bg-slate-900/40 border border-slate-800">
-          
           {/* Expanded slider nodes to easily match the massive 40-app integration limit */}
           <Control
             label="Total active nodes in circular layout"
@@ -163,7 +165,9 @@ function SettingsPage() {
           </Control>
 
           <div>
-            <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">Layout distribution geometry spread</p>
+            <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">
+              Layout distribution geometry spread
+            </p>
             <div className="flex flex-wrap gap-2">
               {(["arc", "fan", "full"] as const).map((l) => (
                 <button
@@ -202,7 +206,11 @@ function SettingsPage() {
             onChange={(v) => update({ showLabels: v })}
           />
 
-          <Button variant="outline" className="border-slate-800 hover:bg-slate-900 text-xs font-bold uppercase" onClick={reset}>
+          <Button
+            variant="outline"
+            className="border-slate-800 hover:bg-slate-900 text-xs font-bold uppercase"
+            onClick={reset}
+          >
             Reset Terminal to Factory Defaults
           </Button>
         </div>
@@ -212,17 +220,27 @@ function SettingsPage() {
         <DialogContent className="bg-slate-950 border border-slate-800">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-white font-black uppercase text-lg">
-              <Sparkles className="h-5 w-5 text-primary animate-bounce" /> Unlock {pending?.name} Pack
+              <Sparkles className="h-5 w-5 text-primary animate-bounce" /> Unlock {pending?.name}{" "}
+              Pack
             </DialogTitle>
             <DialogDescription className="text-slate-400 text-xs leading-normal pt-2">
-              {pending?.tagline} — High intensity active cyber premium skin. Unlocks directly by spending <span className="text-primary font-bold">{pending?.price} diamonds</span> collected during live gaming sessions.
+              {pending?.tagline} — High intensity active cyber premium skin. Unlocks directly by
+              spending <span className="text-primary font-bold">{pending?.price} diamonds</span>{" "}
+              collected during live gaming sessions.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4 gap-2">
-            <Button variant="outline" className="border-slate-800 hover:bg-slate-900 text-xs font-bold" onClick={() => setPending(null)}>
+            <Button
+              variant="outline"
+              className="border-slate-800 hover:bg-slate-900 text-xs font-bold"
+              onClick={() => setPending(null)}
+            >
               Abort Protocol
             </Button>
-            <Button className="bg-primary text-slate-950 font-black text-xs uppercase" onClick={confirmUnlock}>
+            <Button
+              className="bg-primary text-slate-950 font-black text-xs uppercase"
+              onClick={confirmUnlock}
+            >
               Deduct Gems & Engage Skin
             </Button>
           </DialogFooter>
@@ -279,7 +297,8 @@ function ThemeCard({
       )}
       style={{ background: theme.vars["--card"] }}
     >
-      <div className="flex h-16 items-center justify-center gap-1.5 rounded-xl"
+      <div
+        className="flex h-16 items-center justify-center gap-1.5 rounded-xl"
         style={{ background: theme.vars["--background"] }}
       >
         {theme.swatch.map((c, i) => (
@@ -290,16 +309,10 @@ function ThemeCard({
           />
         ))}
       </div>
-      <p
-        className="mt-3 text-sm font-semibold"
-        style={{ color: theme.vars["--foreground"] }}
-      >
+      <p className="mt-3 text-sm font-semibold" style={{ color: theme.vars["--foreground"] }}>
         {theme.name}
       </p>
-      <p
-        className="mt-0.5 text-[11px]"
-        style={{ color: theme.vars["--muted-foreground"] }}
-      >
+      <p className="mt-0.5 text-[11px]" style={{ color: theme.vars["--muted-foreground"] }}>
         {theme.tagline}
       </p>
       <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider">

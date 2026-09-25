@@ -55,12 +55,24 @@ const DrawerContent = React.forwardRef<
 DrawerContent.displayName = "DrawerContent";
 
 const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("grid gap-2 p-5 text-center sm:text-left border-b border-slate-900 pb-3", className)} {...props} />
+  <div
+    className={cn(
+      "grid gap-2 p-5 text-center sm:text-left border-b border-slate-900 pb-3",
+      className,
+    )}
+    {...props}
+  />
 );
 DrawerHeader.displayName = "DrawerHeader";
 
 const DrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("mt-auto flex flex-col gap-2 p-5 border-t border-slate-900/60 bg-slate-900/10", className)} {...props} />
+  <div
+    className={cn(
+      "mt-auto flex flex-col gap-2 p-5 border-t border-slate-900/60 bg-slate-900/10",
+      className,
+    )}
+    {...props}
+  />
 );
 DrawerFooter.displayName = "DrawerFooter";
 
@@ -70,7 +82,10 @@ const DrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-amber-400 uppercase", className)}
+    className={cn(
+      "text-lg font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-amber-400 uppercase",
+      className,
+    )}
     {...props}
   />
 ));
@@ -82,7 +97,10 @@ const DrawerDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Description
     ref={ref}
-    className={cn("text-xs font-bold text-slate-400 uppercase tracking-wider leading-normal", className)}
+    className={cn(
+      "text-xs font-bold text-slate-400 uppercase tracking-wider leading-normal",
+      className,
+    )}
     {...props}
   />
 ));

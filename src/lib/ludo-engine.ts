@@ -16,17 +16,56 @@ export type LudoPlayer = {
 
 /** 52 track cells as [row, col] on a 15x15 board, clockwise. */
 export const TRACK: [number, number][] = [
-  [6, 1], [6, 2], [6, 3], [6, 4], [6, 5],
-  [5, 6], [4, 6], [3, 6], [2, 6], [1, 6], [0, 6],
+  [6, 1],
+  [6, 2],
+  [6, 3],
+  [6, 4],
+  [6, 5],
+  [5, 6],
+  [4, 6],
+  [3, 6],
+  [2, 6],
+  [1, 6],
+  [0, 6],
   [0, 7],
-  [0, 8], [1, 8], [2, 8], [3, 8], [4, 8], [5, 8],
-  [6, 9], [6, 10], [6, 11], [6, 12], [6, 13], [6, 14],
+  [0, 8],
+  [1, 8],
+  [2, 8],
+  [3, 8],
+  [4, 8],
+  [5, 8],
+  [6, 9],
+  [6, 10],
+  [6, 11],
+  [6, 12],
+  [6, 13],
+  [6, 14],
   [7, 14],
-  [8, 14], [8, 13], [8, 12], [8, 11], [8, 10], [8, 9],
-  [9, 8], [10, 8], [11, 8], [12, 8], [13, 8], [14, 8],
+  [8, 14],
+  [8, 13],
+  [8, 12],
+  [8, 11],
+  [8, 10],
+  [8, 9],
+  [9, 8],
+  [10, 8],
+  [11, 8],
+  [12, 8],
+  [13, 8],
+  [14, 8],
   [14, 7],
-  [14, 6], [13, 6], [12, 6], [11, 6], [10, 6], [9, 6],
-  [8, 5], [8, 4], [8, 3], [8, 2], [8, 1], [8, 0],
+  [14, 6],
+  [13, 6],
+  [12, 6],
+  [11, 6],
+  [10, 6],
+  [9, 6],
+  [8, 5],
+  [8, 4],
+  [8, 3],
+  [8, 2],
+  [8, 1],
+  [8, 0],
   [7, 0],
   [6, 0],
 ];
@@ -35,21 +74,72 @@ export const START_INDEX: Record<PlayerId, number> = { 0: 0, 1: 13, 2: 26, 3: 39
 
 /** Home stretch cells per player (5 cells) + center. */
 export const HOME_PATH: Record<PlayerId, [number, number][]> = {
-  0: [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6]],
-  1: [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7]],
-  2: [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9], [7, 8]],
-  3: [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7], [8, 7]],
+  0: [
+    [7, 1],
+    [7, 2],
+    [7, 3],
+    [7, 4],
+    [7, 5],
+    [7, 6],
+  ],
+  1: [
+    [1, 7],
+    [2, 7],
+    [3, 7],
+    [4, 7],
+    [5, 7],
+    [6, 7],
+  ],
+  2: [
+    [7, 13],
+    [7, 12],
+    [7, 11],
+    [7, 10],
+    [7, 9],
+    [7, 8],
+  ],
+  3: [
+    [13, 7],
+    [12, 7],
+    [11, 7],
+    [10, 7],
+    [9, 7],
+    [8, 7],
+  ],
 };
 
 /** Yard slots (4 per player). */
 export const YARD: Record<PlayerId, [number, number][]> = {
-  0: [[1.8, 1.8], [1.8, 3.6], [3.6, 1.8], [3.6, 3.6]],
-  1: [[1.8, 9.8], [1.8, 11.6], [3.6, 9.8], [3.6, 11.6]],
-  2: [[9.8, 9.8], [9.8, 11.6], [11.6, 9.8], [11.6, 11.6]],
-  3: [[9.8, 1.8], [9.8, 3.6], [11.6, 1.8], [11.6, 3.6]],
+  0: [
+    [1.8, 1.8],
+    [1.8, 3.6],
+    [3.6, 1.8],
+    [3.6, 3.6],
+  ],
+  1: [
+    [1.8, 9.8],
+    [1.8, 11.6],
+    [3.6, 9.8],
+    [3.6, 11.6],
+  ],
+  2: [
+    [9.8, 9.8],
+    [9.8, 11.6],
+    [11.6, 9.8],
+    [11.6, 11.6],
+  ],
+  3: [
+    [9.8, 1.8],
+    [9.8, 3.6],
+    [11.6, 1.8],
+    [11.6, 3.6],
+  ],
 };
 
 export const SAFE_TRACK_INDEXES = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
+
+/** 4D Wormhole Portal tiles (Feature #46) */
+export const PORTAL_TILES: Record<number, number> = { 7: 33, 33: 7 };
 
 export const LAST_STEP = 56; // reached home
 
@@ -101,17 +191,35 @@ export type MoveResult = {
   tokens: Token[];
   captured: Token[];
   reachedHome: boolean;
+  teleported?: boolean;
 };
 
 export function applyMove(
   tokens: Token[],
   tokenId: string,
   die: number,
+  portalEnabled: boolean = true,
 ): MoveResult {
   const next = tokens.map((t) => ({ ...t }));
   const token = next.find((t) => t.id === tokenId)!;
   if (token.pos < 0) token.pos = 0;
   else token.pos = Math.min(token.pos + die, LAST_STEP);
+
+  let teleported = false;
+  if (portalEnabled && token.pos <= 50) {
+    const rawIdx = trackIndexOf(token);
+    if (rawIdx !== null && PORTAL_TILES[rawIdx] !== undefined) {
+      const targetIdx = PORTAL_TILES[rawIdx]!;
+      // Re-map token pos based on destination
+      const playerStart = START_INDEX[token.player];
+      let newRelativePos = targetIdx - playerStart;
+      if (newRelativePos < 0) newRelativePos += 52;
+      if (newRelativePos <= 50) {
+        token.pos = newRelativePos;
+        teleported = true;
+      }
+    }
+  }
 
   const captured: Token[] = [];
   const idx = trackIndexOf(token);
@@ -125,7 +233,7 @@ export function applyMove(
     }
   }
 
-  return { tokens: next, captured, reachedHome: token.pos === LAST_STEP };
+  return { tokens: next, captured, reachedHome: token.pos === LAST_STEP, teleported };
 }
 
 /** Simple but competent bot: capture > home > release > furthest ahead. */
@@ -154,9 +262,7 @@ export function pickBotMove(tokens: Token[], player: PlayerId, die: number) {
 }
 
 export function hasWon(tokens: Token[], player: PlayerId) {
-  return tokens
-    .filter((t) => t.player === player)
-    .every((t) => t.pos === LAST_STEP);
+  return tokens.filter((t) => t.player === player).every((t) => t.pos === LAST_STEP);
 }
 
 /** Fair roll for any die size (1..max) using crypto randomness. */

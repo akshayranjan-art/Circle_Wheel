@@ -3,21 +3,11 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Plus, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import {
-  BUILT_IN_APPS,
-  MAX_APPS,
-  PRESET_APPS,
-  isExternal,
-  type WheelApp,
-} from "@/lib/wheel-apps";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { BUILT_IN_APPS, MAX_APPS, PRESET_APPS, isExternal, type WheelApp } from "@/lib/wheel-apps";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { soundFX } from "@/lib/sound-fx";
 
 const KEY = "orbit-apps-v1";
 const INNER = 16;
@@ -103,6 +93,9 @@ export function RadialNav() {
     moved.current += Math.abs(d);
     last.current = { a, t: now };
     apply(rotRef.current + d);
+    if (Math.abs(d) > 3) {
+      soundFX.playTick();
+    }
   };
   const onUp = () => {
     last.current = null;
@@ -142,7 +135,12 @@ export function RadialNav() {
             type="button"
             style={style}
             className={cn(cls, "wheel-node--add")}
-            onClick={(e) => moved.current <= 4 ? setAdding(true) : e.preventDefault()}
+            onMouseEnter={() => soundFX.playTick()}
+            onClick={(e) => {
+              soundFX.playWheelNode(i);
+              if (moved.current <= 4) setAdding(true);
+              else e.preventDefault();
+            }}
             aria-label="Add app"
           >
             <Plus className="h-5 w-5" />
@@ -164,7 +162,11 @@ export function RadialNav() {
           rel="noreferrer"
           style={style}
           className={cls}
-          onClick={guardClick}
+          onMouseEnter={() => soundFX.playTick()}
+          onClick={(e) => {
+            soundFX.playWheelNode(i);
+            guardClick(e);
+          }}
           draggable={false}
         >
           {inner}
@@ -175,7 +177,11 @@ export function RadialNav() {
           to={app.to}
           style={style}
           className={cn(cls, active && "wheel-node--active")}
-          onClick={guardClick}
+          onMouseEnter={() => soundFX.playTick()}
+          onClick={(e) => {
+            soundFX.playWheelNode(i);
+            guardClick(e);
+          }}
           draggable={false}
         >
           {inner}
@@ -189,14 +195,21 @@ export function RadialNav() {
       <button
         type="button"
         aria-label="Open app wheel"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          soundFX.playWheelHandle();
+          setOpen(true);
+        }}
+        onMouseEnter={() => soundFX.playTick()}
         className={cn("wheel-handle", open && "pointer-events-none opacity-0")}
       >
         <span className="wheel-handle-dot" />
       </button>
 
       <div
-        onClick={() => setOpen(false)}
+        onClick={() => {
+          soundFX.playLiquidRipple();
+          setOpen(false);
+        }}
         className={cn(
           "fixed inset-0 z-40 bg-background/70 backdrop-blur-md transition-opacity duration-500",
           open ? "opacity-100" : "pointer-events-none opacity-0",
@@ -218,7 +231,10 @@ export function RadialNav() {
         {renderRing(outer, 240, -1, 52)}
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            soundFX.playLiquidRipple();
+            setOpen(false);
+          }}
           className="wheel-core absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full"
           aria-label="Close"
         >
@@ -255,10 +271,19 @@ function AddAppDialog({
   const [emoji, setEmoji] = useState("⭐");
 
   const add = () => {
-    if (!label.trim() || !url.trim()) { toast.error("Naam aur link dono daalo"); return; }
-    if (total >= MAX_APPS) { toast.error("40 apps full ho gaye"); return; }
+    if (!label.trim() || !url.trim()) {
+      toast.error("Naam aur link dono daalo");
+      return;
+    }
+    if (total >= MAX_APPS) {
+      toast.error("40 apps full ho gaye");
+      return;
+    }
     const to = /^[a-z]+:\/\//i.test(url) || url.startsWith("/") ? url : `https://${url}`;
-    onSave([...custom, { id: `c-${Date.now()}`, label: label.trim(), to, emoji: emoji || "⭐", custom: true }]);
+    onSave([
+      ...custom,
+      { id: `c-${Date.now()}`, label: label.trim(), to, emoji: emoji || "⭐", custom: true },
+    ]);
     setLabel("");
     setUrl("");
     toast.success(`${label} wheel me add ho gaya`);
@@ -268,20 +293,40 @@ function AddAppDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="neon-panel max-w-md">
         <DialogHeader>
-          <DialogTitle>Apna app add karo ({total}/{MAX_APPS})</DialogTitle>
+          <DialogTitle>
+            Apna app add karo ({total}/{MAX_APPS})
+          </DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-[4rem_1fr] gap-2">
-          <Input value={emoji} onChange={(e) => setEmoji(e.target.value.slice(0, 2))} aria-label="Emoji" />
-          <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="App ka naam" />
+          <Input
+            value={emoji}
+            onChange={(e) => setEmoji(e.target.value.slice(0, 2))}
+            aria-label="Emoji"
+          />
+          <Input
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder="App ka naam"
+          />
         </div>
-        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Link, jaise youtube.com ya whatsapp://" />
+        <Input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Link, jaise youtube.com ya whatsapp://"
+        />
         <Button onClick={add}>Wheel me add karo</Button>
         <div className="max-h-56 space-y-1 overflow-auto">
           {custom.map((a) => (
-            <div key={a.id} className="flex items-center gap-2 rounded-md bg-muted/40 px-2 py-1 text-sm">
+            <div
+              key={a.id}
+              className="flex items-center gap-2 rounded-md bg-muted/40 px-2 py-1 text-sm"
+            >
               <span>{a.emoji}</span>
               <span className="min-w-0 flex-1 truncate">{a.label}</span>
-              <button aria-label={`Remove ${a.label}`} onClick={() => onSave(custom.filter((c) => c.id !== a.id))}>
+              <button
+                aria-label={`Remove ${a.label}`}
+                onClick={() => onSave(custom.filter((c) => c.id !== a.id))}
+              >
                 <Trash2 className="h-4 w-4 text-destructive" />
               </button>
             </div>

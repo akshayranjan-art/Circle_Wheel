@@ -60,9 +60,9 @@ const SheetContent = React.forwardRef<
 >(({ side = "right", className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
-    <SheetPrimitive.Content 
-      ref={ref} 
-      className={cn(sheetVariants({ side }), "text-slate-100 ring-1 ring-white/10", className)} 
+    <SheetPrimitive.Content
+      ref={ref}
+      className={cn(sheetVariants({ side }), "text-slate-100 ring-1 ring-white/10", className)}
       {...props}
     >
       {/* Premium glowing mechanical close claw trigger */}
@@ -77,13 +77,22 @@ const SheetContent = React.forwardRef<
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-2.5 text-center sm:text-left border-b border-slate-900 pb-4 mb-4", className)} {...props} />
+  <div
+    className={cn(
+      "flex flex-col space-y-2.5 text-center sm:text-left border-b border-slate-900 pb-4 mb-4",
+      className,
+    )}
+    {...props}
+  />
 );
 SheetHeader.displayName = "SheetHeader";
 
 const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 border-t border-slate-900 pt-4 mt-6", className)}
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 border-t border-slate-900 pt-4 mt-6",
+      className,
+    )}
     {...props}
   />
 );
@@ -95,7 +104,10 @@ const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
-    className={cn("text-xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-amber-400 flex items-center gap-1.5 uppercase", className)}
+    className={cn(
+      "text-xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-amber-400 flex items-center gap-1.5 uppercase",
+      className,
+    )}
     {...props}
   />
 ));
@@ -107,7 +119,10 @@ const SheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}
-    className={cn("text-xs font-semibold text-slate-400 uppercase tracking-wider leading-relaxed", className)}
+    className={cn(
+      "text-xs font-semibold text-slate-400 uppercase tracking-wider leading-relaxed",
+      className,
+    )}
     {...props}
   />
 ));

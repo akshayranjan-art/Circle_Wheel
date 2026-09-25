@@ -195,7 +195,11 @@ const MenubarLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <MenubarPrimitive.Label
     ref={ref}
-    className={cn("px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-500", inset && "pl-9", className)}
+    className={cn(
+      "px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-500",
+      inset && "pl-9",
+      className,
+    )}
     {...props}
   />
 ));
@@ -216,7 +220,10 @@ MenubarSeparator.displayName = MenubarPrimitive.Separator.displayName;
 const MenubarShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
     <span
-      className={cn("ml-auto text-[10px] font-black font-mono tracking-widest text-slate-600 bg-slate-950 px-1.5 py-0.5 border border-slate-900 rounded", className)}
+      className={cn(
+        "ml-auto text-[10px] font-black font-mono tracking-widest text-slate-600 bg-slate-950 px-1.5 py-0.5 border border-slate-900 rounded",
+        className,
+      )}
       {...props}
     />
   );
