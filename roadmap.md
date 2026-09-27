@@ -10,7 +10,8 @@
 
 ## Mega launcher and Ludo expansion
 
-- [ ] Curved Android-style launcher: wallpaper, search, A-Z jump, reorder, gestures, 40+40 dual edges
+- [x] Curved Android-style launcher: wallpaper, search, A-Z jump, reorder, gestures and 40 slots
+- [ ] Dual-edge launcher expansion for 40+40 slots
 - [ ] Launcher subscription pack presentation and entitlement flow
 - [ ] 4D neon-liquid Ludo visuals, dice, tokens, arenas, capture and victory cinematics
 - [ ] Diamond economy: insurance, revenge wheel, loss rewards, stakes, market, challenges, bounties
@@ -18,7 +19,7 @@
 - [ ] Progression: rankings, trophy wall, skins, badges, tournaments and streaming dashboard
 - [ ] Game modes: ghost, time warp, portals, sudden death, dice shop and reconnect flow
 - [ ] Moderation, fair-play validation and anti-collusion alerts
-- [ ] Mobile performance and interaction verification
+- [x] Mobile launcher performance and interaction verification
 
 ### Remaining mega systems
 
