@@ -480,7 +480,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         const reachedMilestone = nextCount === 50 || nextCount % 50 === 0;
         soundFX.playSpectatorBomb("cheer");
 
-        result = { ok: true };
+        result = { ok: true, reason: "Love Birds match created" };
         const newAnnouncement = reachedMilestone
           ? `🎉 MILESTONE ANNOUNCEMENT: ${s.userGender === "female" ? "You" : partnerName} achieved 50 Love Birds matches today! Claim 50 💎 Daily Love Dividend!`
           : s.recentMilestoneAnnouncement;

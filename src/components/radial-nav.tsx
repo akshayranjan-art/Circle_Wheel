@@ -19,6 +19,8 @@ export function RadialNav() {
   const [rot, setRot] = useState(0);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  if (pathname === "/") return null;
+
   const rotRef = useRef(0);
   const vel = useRef(0);
   const last = useRef<{ a: number; t: number } | null>(null);

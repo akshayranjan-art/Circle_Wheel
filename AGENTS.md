@@ -10,3 +10,5 @@
 > the editor, so keep the branch in a working state.
 
 <!-- LOVABLE:END -->
+
+- Keep launcher shortcut state centralized in `wheel-apps.ts` types plus the launcher’s persisted store so arc, search, and customization stay synchronized.

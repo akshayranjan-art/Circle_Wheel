@@ -906,3 +906,49 @@
 .animate-ticker-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Immersive curved-edge launcher */
+.launcher-stage { position: relative; min-height: 100dvh; overflow: hidden; background: var(--background); isolation: isolate; }
+.launcher-wallpaper { position: fixed; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; filter: saturate(1.08) contrast(1.04); }
+.launcher-shade { position: fixed; inset: 0; z-index: -2; background: linear-gradient(180deg, color-mix(in oklab, var(--background) 38%, transparent), color-mix(in oklab, var(--background) 12%, transparent) 48%, color-mix(in oklab, var(--background) 72%, transparent)); }
+.launcher-status { position: fixed; inset: 0 0 auto; z-index: 30; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: .75rem; padding: max(.8rem, env(safe-area-inset-top)) 1rem .5rem; color: var(--foreground); background: linear-gradient(180deg, color-mix(in oklab, var(--background) 72%, transparent), transparent); }
+.launcher-chip { display: inline-flex; min-height: 2.25rem; align-items: center; justify-content: center; border: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent); border-radius: 999px; padding: .35rem .7rem; background: color-mix(in oklab, var(--background) 58%, transparent); color: var(--foreground); font-size: .75rem; font-weight: 700; backdrop-filter: blur(18px) saturate(140%); }
+.launcher-icon-button { border: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent); border-radius: 999px; background: color-mix(in oklab, var(--background) 58%, transparent); backdrop-filter: blur(18px) saturate(140%); }
+.launcher-search { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; min-height: 3.35rem; gap: .65rem; border: 1px solid color-mix(in oklab, var(--foreground) 25%, transparent); border-radius: 999px; padding: 0 .7rem 0 1rem; background: color-mix(in oklab, var(--background) 42%, transparent); box-shadow: 0 0 28px color-mix(in oklab, var(--primary) 22%, transparent), inset 0 1px color-mix(in oklab, var(--foreground) 25%, transparent); backdrop-filter: blur(22px) saturate(150%); }
+.launcher-search input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: var(--foreground); font-size: 1rem; }
+.launcher-search input::placeholder { color: color-mix(in oklab, var(--foreground) 65%, transparent); }
+.launcher-arc-zone { position: absolute; top: 50%; right: 0; width: min(33rem, 92vw); height: min(33rem, 58vh); transform: translate(52%, -36%); perspective: 900px; }
+.launcher-orbit-rail { position: absolute; inset: 50% auto auto 50%; border: 1px solid color-mix(in oklab, var(--primary) 72%, transparent); border-radius: 50%; transform: translate(-50%,-50%); box-shadow: 0 0 18px color-mix(in oklab, var(--primary) 48%, transparent); }
+.launcher-orbit-rail--outer { width: 31rem; height: 31rem; }
+.launcher-orbit-rail--inner { width: 22rem; height: 22rem; opacity: .55; }
+.launcher-arc-surface { position: absolute; inset: 0; touch-action: none; cursor: grab; user-select: none; transform-style: preserve-3d; }
+.launcher-arc-surface:active { cursor: grabbing; }
+.launcher-app-node { position: absolute; left: 50%; top: 50%; display: flex; width: 5rem; height: 5rem; flex-direction: column; align-items: center; justify-content: center; gap: .18rem; border: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent); border-radius: 1.4rem; padding: .35rem; background: color-mix(in oklab, var(--background) 48%, transparent); box-shadow: 0 8px 24px color-mix(in oklab, var(--background) 70%, transparent), inset 0 1px color-mix(in oklab, var(--foreground) 24%, transparent); backdrop-filter: blur(14px) saturate(145%); will-change: transform, opacity; }
+.launcher-app-icon { font-size: 1.65rem; line-height: 1; filter: drop-shadow(0 0 7px color-mix(in oklab, var(--primary) 65%, transparent)); }
+.launcher-app-label { width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .58rem; font-weight: 700; color: var(--foreground); }
+.launcher-arc-core { position: absolute; left: 50%; top: 50%; display: grid; width: 7rem; height: 7rem; place-items: center; border: 1px solid color-mix(in oklab, var(--primary) 80%, transparent); border-radius: 50%; transform: translate(-50%,-50%); background: color-mix(in oklab, var(--background) 64%, transparent); box-shadow: 0 0 45px color-mix(in oklab, var(--primary) 48%, transparent), inset 0 0 26px color-mix(in oklab, var(--primary) 18%, transparent); backdrop-filter: blur(20px); }
+.launcher-arc-core span { color: var(--primary); font-size: 2rem; font-weight: 900; text-shadow: 0 0 20px color-mix(in oklab, var(--primary) 70%, transparent); }
+.launcher-empty { position: absolute; left: 20%; top: 50%; transform: translate(-50%,-50%); color: var(--foreground); }
+.launcher-alphabet { position: fixed; right: .2rem; top: 22%; z-index: 35; display: grid; height: 56vh; grid-template-rows: repeat(26,minmax(0,1fr)); align-items: center; border-right: 2px solid color-mix(in oklab, var(--primary) 70%, transparent); padding: .2rem .35rem .2rem .15rem; background: color-mix(in oklab, var(--background) 20%, transparent); backdrop-filter: blur(8px); touch-action: none; }
+.launcher-letter { min-width: 1.15rem; color: color-mix(in oklab, var(--foreground) 72%, transparent); font-size: clamp(.46rem, 1.2vh, .68rem); line-height: 1; }
+.launcher-letter--active { color: var(--primary); font-weight: 900; transform: scale(1.45); text-shadow: 0 0 10px var(--primary); }
+.launcher-dock { position: fixed; left: 50%; bottom: max(2.65rem, calc(env(safe-area-inset-bottom) + 2rem)); z-index: 28; display: grid; width: min(22rem, calc(100vw - 2rem)); grid-template-columns: repeat(4,minmax(0,1fr)); gap: .5rem; transform: translateX(-50%); border: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent); border-radius: 1.6rem; padding: .6rem; background: color-mix(in oklab, var(--background) 45%, transparent); box-shadow: 0 12px 36px color-mix(in oklab, var(--background) 65%, transparent); backdrop-filter: blur(22px) saturate(150%); }
+.launcher-dock-app { display: grid; min-width: 0; place-items: center; gap: .15rem; color: var(--foreground); }
+.launcher-dock-app span { font-size: 1.55rem; }
+.launcher-dock-app small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .58rem; }
+.launcher-drawer-handle { position: fixed; left: 50%; bottom: max(.2rem, env(safe-area-inset-bottom)); z-index: 31; display: flex; height: 2.3rem; transform: translateX(-50%); flex-direction: column; gap: 0; border-radius: 999px; background: color-mix(in oklab, var(--background) 52%, transparent); color: var(--foreground); backdrop-filter: blur(14px); }
+.launcher-drawer-handle span { font-size: .55rem; }
+.launcher-drawer-backdrop { position: fixed; inset: 0; z-index: 49; pointer-events: none; opacity: 0; background: color-mix(in oklab, var(--background) 65%, transparent); transition: opacity .28s ease; backdrop-filter: blur(7px); }
+.launcher-drawer-backdrop--open { pointer-events: auto; opacity: 1; }
+.launcher-drawer { position: fixed; inset: auto 0 0; z-index: 50; max-height: 84dvh; transform: translateY(102%); border-top: 1px solid color-mix(in oklab, var(--primary) 42%, transparent); border-radius: 1.5rem 1.5rem 0 0; padding-top: .6rem; background: color-mix(in oklab, var(--background) 92%, transparent); box-shadow: 0 -20px 60px color-mix(in oklab, var(--primary) 18%, transparent); transition: transform .38s cubic-bezier(.22,1,.36,1); backdrop-filter: blur(26px); }
+.launcher-drawer--open { transform: translateY(0); }
+.launcher-drawer-grip { width: 3rem; height: .25rem; margin: 0 auto .8rem; border-radius: 999px; background: color-mix(in oklab, var(--foreground) 30%, transparent); }
+.launcher-tools { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .5rem; }
+.launcher-manage-row { display: grid; grid-template-columns: auto auto minmax(0,1fr) repeat(4,2.1rem); align-items: center; gap: .25rem; border: 1px solid var(--border); border-radius: .65rem; padding: .35rem .45rem; background: color-mix(in oklab, var(--card) 75%, transparent); }
+.launcher-wallpaper-option { position: relative; overflow: hidden; aspect-ratio: 9/14; border: 1px solid var(--border); border-radius: .55rem; background: var(--muted); }
+.launcher-wallpaper-option img { width: 100%; height: 100%; object-fit: cover; }
+.launcher-wallpaper-option span { position: absolute; inset: auto .25rem .25rem; border-radius: .3rem; padding: .2rem; background: color-mix(in oklab, var(--background) 75%, transparent); color: var(--foreground); font-size: .65rem; backdrop-filter: blur(8px); }
+.launcher-wallpaper-option--active { border-color: var(--primary); box-shadow: 0 0 18px color-mix(in oklab, var(--primary) 45%, transparent); }
+.launcher-upload { display: flex; min-height: 3rem; cursor: pointer; align-items: center; justify-content: center; gap: .5rem; border: 1px dashed color-mix(in oklab, var(--primary) 55%, transparent); border-radius: .55rem; color: var(--foreground); }
+@media (min-width: 768px) { .launcher-arc-zone { right: 7%; transform: translate(35%,-38%); } .launcher-alphabet { right: 1rem; } .launcher-drawer { left: 50%; width: min(46rem,92vw); transform: translate(-50%,102%); border-radius: 1.5rem 1.5rem 0 0; } .launcher-drawer--open { transform: translate(-50%,0); } }
+@media (prefers-reduced-motion: reduce) { .launcher-drawer, .launcher-drawer-backdrop { transition: none; } }
