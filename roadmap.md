@@ -19,3 +19,12 @@
 - [ ] Game modes: ghost, time warp, portals, sudden death, dice shop and reconnect flow
 - [ ] Moderation, fair-play validation and anti-collusion alerts
 - [ ] Mobile performance and interaction verification
+
+### Remaining mega systems
+
+- [ ] Dual-edge 40+40 launcher entitlement packs: ₹99/month, ₹599/year, ₹1999 lifetime
+- [ ] Voice lounge upgrades: spatial indicators, modulators, VIP betting, clans and match finder
+- [ ] Economy upgrades: insurance, revenge spin, stake pools, market ticker, challenges and bounties
+- [ ] Progression upgrades: replay room, trophy wall, evolving skins, knockout brackets and live streams
+- [ ] Special modes: ghost turns, electric dice, time warp, portals, sudden death and reconnect takeover
+- [ ] Admin moderation: room monitor, reports, mute/kick/ban and audit trail
