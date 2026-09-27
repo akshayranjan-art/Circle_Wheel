@@ -52,7 +52,7 @@ export function LauncherHome() {
   const [wallpaperOpen, setWallpaperOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [draft, setDraft] = useState<EditDraft>({ label: "", to: "", emoji: "✨" });
-  const [wallpaper, setWallpaper] = useState<Wallpaper>(WALLPAPERS[0]);
+  const [wallpaper, setWallpaper] = useState<Wallpaper>(WALLPAPERS[0] ?? { id: "city", name: "Neon City", src: cityWallpaper });
   const [customWallpaper, setCustomWallpaper] = useState("");
   const [time, setTime] = useState("05:03");
   const arcRef = useRef<HTMLDivElement | null>(null);
@@ -157,8 +157,8 @@ export function LauncherHome() {
   };
 
   const saveDraft = () => {
-    if (!draft.label.trim() || !draft.to.trim()) return toast.error("App name aur link dono daalo");
-    if (!draft.id && apps.length >= MAX_APPS) return toast.error("40 apps capacity full hai");
+    if (!draft.label.trim() || !draft.to.trim()) { toast.error("App name aur link dono daalo"); return; }
+    if (!draft.id && apps.length >= MAX_APPS) { toast.error("40 apps capacity full hai"); return; }
     const app: WheelApp = { id: draft.id ?? `custom-${Date.now()}`, label: draft.label.trim(), to: normalizedTarget(draft.to), emoji: draft.emoji.trim() || "✨", custom: true };
     saveApps(draft.id ? apps.map((item) => item.id === draft.id ? app : item) : [...apps, app]);
     setEditorOpen(false);
@@ -183,7 +183,7 @@ export function LauncherHome() {
   };
 
   const useWallpaperUrl = (url: string) => {
-    if (!/^https:\/\//i.test(url)) return toast.error("Valid https image URL daalo");
+    if (!/^https:\/\//i.test(url)) { toast.error("Valid https image URL daalo"); return; }
     setCustomWallpaper(url);
     localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: url }));
     toast.success("Custom wallpaper set ho gaya");
@@ -191,7 +191,7 @@ export function LauncherHome() {
 
   const uploadWallpaper = (file?: File) => {
     if (!file?.type.startsWith("image/")) return;
-    if (file.size > 10 * 1024 * 1024) return toast.error("Wallpaper 10 MB se chhota rakho");
+    if (file.size > 10 * 1024 * 1024) { toast.error("Wallpaper 10 MB se chhota rakho"); return; }
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result !== "string") return;

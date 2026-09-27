@@ -459,7 +459,7 @@ export function LudoPage() {
   useEffect(() => {
     if (movableList.length > 0) {
       if (!selectedTokenId || !movable.has(selectedTokenId)) {
-        setSelectedTokenId(movableList[0]);
+        setSelectedTokenId(movableList[0] ?? null);
       }
     } else {
       setSelectedTokenId(null);
@@ -477,7 +477,7 @@ export function LudoPage() {
           soundFX.playArrowNav();
           const currentIndex = movableList.indexOf(selectedTokenId ?? "");
           const nextIndex = (currentIndex - 1 + movableList.length) % movableList.length;
-          setSelectedTokenId(movableList[nextIndex]);
+          setSelectedTokenId(movableList[nextIndex] ?? null);
         }
       } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         if (movableList.length > 0) {
@@ -485,7 +485,7 @@ export function LudoPage() {
           soundFX.playArrowNav();
           const currentIndex = movableList.indexOf(selectedTokenId ?? "");
           const nextIndex = (currentIndex + 1) % movableList.length;
-          setSelectedTokenId(movableList[nextIndex]);
+          setSelectedTokenId(movableList[nextIndex] ?? null);
         }
       } else if (e.key === "Enter" || e.key === " ") {
         if (turn === 0) {
@@ -1121,7 +1121,7 @@ export function LudoPage() {
                     soundFX.playArrowNav();
                     const currentIndex = movableList.indexOf(selectedTokenId ?? "");
                     const nextIndex = (currentIndex - 1 + movableList.length) % movableList.length;
-                    setSelectedTokenId(movableList[nextIndex]);
+                    setSelectedTokenId(movableList[nextIndex] ?? null);
                   }
                 }}
                 className="flex items-center gap-1 rounded-xl bg-slate-950 px-3.5 py-2.5 text-xs font-black text-amber-300 border border-slate-800 hover:border-amber-400 disabled:opacity-40 transition-all cursor-pointer"
@@ -1175,7 +1175,7 @@ export function LudoPage() {
                     soundFX.playArrowNav();
                     const currentIndex = movableList.indexOf(selectedTokenId ?? "");
                     const nextIndex = (currentIndex + 1) % movableList.length;
-                    setSelectedTokenId(movableList[nextIndex]);
+                    setSelectedTokenId(movableList[nextIndex] ?? null);
                   }
                 }}
                 className="flex items-center gap-1 rounded-xl bg-slate-950 px-3.5 py-2.5 text-xs font-black text-amber-300 border border-slate-800 hover:border-amber-400 disabled:opacity-40 transition-all cursor-pointer"

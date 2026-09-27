@@ -5,6 +5,7 @@ import { useWallet } from "@/components/wallet-provider";
 import { soundFX } from "@/lib/sound-fx";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
