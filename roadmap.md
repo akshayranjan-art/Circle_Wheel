@@ -32,9 +32,9 @@
 
 ## Launcher-only revision
 
-- [ ] Remove Ludo/game references from the launcher experience
-- [ ] Replace circular orbit with one full-height vertical edge launcher
-- [ ] Add light/dark appearance control plus brightness and volume controls
-- [ ] Keep wallpaper presets, custom upload/URL, A-Z index, search and shortcut editing
+- [x] Remove Ludo/game references from the launcher experience
+- [x] Replace circular orbit with one full-height vertical edge launcher
+- [x] Add light/dark appearance control plus brightness and volume controls
+- [x] Keep wallpaper presets, custom upload/URL, A-Z index, search and shortcut editing
 - [ ] Add clean text-free wallpaper choices based on the supplied visual references
-- [ ] Keep browser-safe add-shortcut support; installed phone app discovery is unavailable to web apps
+- [x] Keep browser-safe add-shortcut support; installed phone app discovery is unavailable to web apps
