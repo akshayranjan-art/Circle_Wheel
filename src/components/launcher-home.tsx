@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, ChevronUp, GripVertical, ImagePlus, Lock, Pencil, Plus, Search, Settings2, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronUp, GripVertical, ImagePlus, Lock, Moon, Pencil, Plus, Search, Settings2, Sun, Trash2, Volume2, VolumeX, X } from "lucide-react";
 import { toast } from "sonner";
 import cityWallpaper from "@/assets/wallpaper-neon-city.jpg";
 import orbitWallpaper from "@/assets/wallpaper-orbit-space.jpg";
@@ -8,9 +8,9 @@ import metalWallpaper from "@/assets/wallpaper-liquid-metal.jpg";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useWallet } from "@/components/wallet-provider";
 import { BUILT_IN_APPS, MAX_APPS, PRESET_APPS, type WheelApp } from "@/lib/wheel-apps";
 import { cn } from "@/lib/utils";
+import { soundFX } from "@/lib/sound-fx";
 
 const APPS_KEY = "orbit-launcher-apps-v2";
 const WALLPAPER_KEY = "orbit-launcher-wallpaper-v2";
@@ -43,7 +43,6 @@ function normalizedTarget(value: string) {
 
 export function LauncherHome() {
   const navigate = useNavigate();
-  const { diamonds } = useWallet();
   const [apps, setApps] = useState<WheelApp[]>(DEFAULT_APPS);
   const [search, setSearch] = useState("");
   const [rotation, setRotation] = useState(0);
@@ -55,6 +54,9 @@ export function LauncherHome() {
   const [wallpaper, setWallpaper] = useState<Wallpaper>(WALLPAPERS[0] ?? { id: "city", name: "Neon City", src: cityWallpaper });
   const [customWallpaper, setCustomWallpaper] = useState("");
   const [time, setTime] = useState("05:03");
+  const [darkMode, setDarkMode] = useState(true);
+  const [brightness, setBrightness] = useState(100);
+  const [volume, setVolume] = useState(70);
   const arcRef = useRef<HTMLDivElement | null>(null);
   const alphabetRef = useRef<HTMLDivElement | null>(null);
   const rotationRef = useRef(0);
@@ -75,6 +77,14 @@ export function LauncherHome() {
       // Keep defaults when saved launcher data is invalid.
     }
   }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    soundFX.setEnabled(volume > 0);
+  }, [volume]);
 
   useEffect(() => {
     const update = () => setTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
@@ -128,7 +138,10 @@ export function LauncherHome() {
   const jumpToLetter = useCallback((letter: string) => {
     setActiveLetter(letter);
     const index = visibleApps.findIndex((app) => app.label.toUpperCase().startsWith(letter));
-    if (index >= 0 && visibleApps.length) apply(-(index * 360) / visibleApps.length);
+    if (index >= 0 && visibleApps.length) {
+      const cycle = Math.max(visibleApps.length * 92, 736);
+      apply((cycle / 2 - index * 92) / 3.2);
+    }
   }, [apply, visibleApps]);
 
   const pickLetter = (clientY: number) => {
@@ -215,25 +228,24 @@ export function LauncherHome() {
 
   return (
     <div className="launcher-stage" onPointerDown={(event) => { if (event.clientY > window.innerHeight * 0.72) swipeRef.current = event.clientY; }} onPointerUp={(event) => { if (swipeRef.current !== null && swipeRef.current - event.clientY > 65) setDrawerOpen(true); swipeRef.current = null; }}>
-      <img src={customWallpaper || wallpaper.src} alt="" className="launcher-wallpaper" width={1080} height={1920} />
+      <img src={customWallpaper || wallpaper.src} alt="" className={cn("launcher-wallpaper", `launcher-brightness-${Math.round(brightness / 10) * 10}`)} width={1080} height={1920} />
       <div className="launcher-shade" />
       <header className="launcher-status">
         <div><p className="text-[11px] font-semibold uppercase text-foreground/65">Orbit OS</p><p suppressHydrationWarning className="text-2xl font-semibold">{time}</p></div>
         <div className="flex shrink-0 items-center gap-2">
-          <Link to="/diamonds" className="launcher-chip">💎 {diamonds.toLocaleString()}</Link>
+          <Button variant="ghost" size="icon" className="launcher-icon-button" onClick={() => setDarkMode((value) => !value)} aria-label="Toggle light and dark mode">{darkMode ? <Sun /> : <Moon />}</Button>
           <Button variant="ghost" size="icon" className="launcher-icon-button" onClick={() => setWallpaperOpen(true)} aria-label="Choose wallpaper"><ImagePlus /></Button>
           <Link to="/settings" className="launcher-icon-button" aria-label="Open settings"><Settings2 className="h-4 w-4" /></Link>
         </div>
       </header>
       <main className="relative z-10 min-h-screen overflow-hidden px-4 pb-24 pt-24 sm:px-8">
         <div className="launcher-search mx-auto max-w-lg"><Search className="h-5 w-5 shrink-0" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search Application" aria-label="Search Application" />{search && <Button variant="ghost" size="icon" onClick={() => setSearch("")} aria-label="Clear search"><X /></Button>}</div>
-        <div className="mx-auto mt-6 flex max-w-lg items-end justify-between gap-4 pr-6"><div><p className="text-xs font-semibold uppercase text-foreground/60">Curved edge launcher</p><h1 className="mt-1 text-2xl font-semibold">Your orbit, one flick away.</h1></div><span className="launcher-chip shrink-0">{apps.length}/{MAX_APPS}</span></div>
-        <section className="launcher-arc-zone" aria-label="Rotary application launcher">
-          <div className="launcher-orbit-rail launcher-orbit-rail--outer" /><div className="launcher-orbit-rail launcher-orbit-rail--inner" />
+        <div className="mx-auto mt-4 flex max-w-lg items-center justify-end pr-6"><span className="launcher-chip shrink-0">{apps.length}/{MAX_APPS} apps</span></div>
+        <section className="launcher-arc-zone" aria-label="Scrollable edge application launcher">
+          <div className="launcher-orbit-rail launcher-orbit-rail--outer" />
           <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { y: event.clientY, time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const delta = event.clientY - previous.y; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 13; pointerRef.current = { y: event.clientY, time: now }; apply(rotationRef.current + delta * .28); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
-            {visibleApps.length ? visibleApps.map((app, index) => { const angle = index * 360 / visibleApps.length + rotation + 180; const radians = angle * Math.PI / 180; const x = (Math.cos(radians) * 245).toFixed(3); const y = (Math.sin(radians) * 245).toFixed(3); const depth = (Math.cos(radians) + 1) / 2; const scale = (.72 + depth * .34).toFixed(4); const opacity = Number((.28 + depth * .72).toFixed(4)); return <Button key={app.id} variant="ghost" onClick={() => launch(app)} className="launcher-app-node" style={{ transform: `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) scale(${scale})`, opacity, zIndex: Math.round(depth * 20) }}><span className="launcher-app-icon">{app.emoji}</span><span className="launcher-app-label">{app.label}</span></Button>; }) : <div className="launcher-empty">No apps found</div>}
+            {visibleApps.length ? visibleApps.map((app, index) => { const spacing = 92; const cycle = Math.max(visibleApps.length * spacing, 736); const raw = (index * spacing + rotation * 3.2) % cycle; const y = ((raw + cycle) % cycle) - 46; const centered = Math.abs(y - cycle / 2) / (cycle / 2); const x = 34 - Math.sin(Math.min(1, centered) * Math.PI / 2) * 28; const depth = 1 - Math.min(1, centered); return <Button key={app.id} variant="ghost" onClick={() => launch(app)} className="launcher-app-node" style={{ transform: `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${(.88 + depth * .12).toFixed(3)})`, opacity: Number((.5 + depth * .5).toFixed(3)), zIndex: Math.round(depth * 20) }}><span className="launcher-app-icon">{app.emoji}</span><span className="launcher-app-label">{app.label}</span></Button>; }) : <div className="launcher-empty">No apps found</div>}
           </div>
-          <div className="launcher-arc-core" aria-hidden="true"><span>{activeLetter}</span></div>
         </section>
         <div ref={alphabetRef} className="launcher-alphabet" onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); pickLetter(event.clientY); }} onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) pickLetter(event.clientY); }} aria-label="A to Z quick jump">{ALPHABET.map((letter) => <button key={letter} type="button" className={cn("launcher-letter", activeLetter === letter && "launcher-letter--active")} onClick={() => jumpToLetter(letter)}>{letter}</button>)}</div>
       </main>
@@ -241,7 +253,11 @@ export function LauncherHome() {
       <Button className="launcher-drawer-handle" variant="ghost" onClick={() => setDrawerOpen(true)}><ChevronUp className="h-5 w-5" /><span>Swipe up</span></Button>
       <div className={cn("launcher-drawer-backdrop", drawerOpen && "launcher-drawer-backdrop--open")} onClick={() => setDrawerOpen(false)} />
       <aside className={cn("launcher-drawer", drawerOpen && "launcher-drawer--open")}><div className="launcher-drawer-grip" /><div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pb-4"><div className="min-w-0"><h2 className="truncate text-lg font-semibold">Quick drawer</h2><p className="text-xs text-muted-foreground">Reorder, edit, remove, or add up to 40 apps.</p></div><Button variant="ghost" size="icon" onClick={() => setDrawerOpen(false)}><X /></Button></div>
-        <div className="launcher-tools px-5"><Button onClick={() => openEditor()} disabled={apps.length >= MAX_APPS}><Plus /> Add app</Button><Button variant="outline" onClick={() => setWallpaperOpen(true)}><ImagePlus /> Wallpaper</Button><Button variant="outline" asChild><Link to="/settings"><Settings2 /> Settings</Link></Button><Button variant="outline" onClick={() => toast.info("Launcher lock enabled for this session")}><Lock /> Lock</Button></div>
+        <div className="launcher-tools px-5"><Button onClick={() => openEditor()} disabled={apps.length >= MAX_APPS}><Plus /> Add shortcut</Button><Button variant="outline" onClick={() => setWallpaperOpen(true)}><ImagePlus /> Wallpaper</Button><Button variant="outline" onClick={() => setDarkMode((value) => !value)}>{darkMode ? <Sun /> : <Moon />} Appearance</Button><Button variant="outline" onClick={() => toast.info("Launcher lock enabled for this session")}><Lock /> Lock</Button></div>
+        <div className="launcher-control-panel mx-5 mt-4">
+          <label><Sun className="h-4 w-4" /><span>Brightness</span><input type="range" min="40" max="100" step="10" value={brightness} onChange={(event) => setBrightness(Number(event.target.value))} /><b>{brightness}%</b></label>
+          <label>{volume ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}<span>Launcher sound</span><input type="range" min="0" max="100" step="10" value={volume} onChange={(event) => setVolume(Number(event.target.value))} /><b>{volume}%</b></label>
+        </div>
         <div className="mt-5 max-h-[46vh] space-y-2 overflow-y-auto px-5 pb-8">{apps.map((app, index) => <div key={app.id} className="launcher-manage-row"><GripVertical className="h-4 w-4 shrink-0 text-muted-foreground" /><span className="text-xl">{app.emoji}</span><span className="min-w-0 flex-1 truncate text-sm font-medium">{app.label}</span><Button variant="ghost" size="icon" onClick={() => moveApp(index, -1)} disabled={index === 0}><ArrowUp /></Button><Button variant="ghost" size="icon" onClick={() => moveApp(index, 1)} disabled={index === apps.length - 1}><ArrowDown /></Button><Button variant="ghost" size="icon" onClick={() => openEditor(app)}><Pencil /></Button><Button variant="ghost" size="icon" onClick={() => saveApps(apps.filter((item) => item.id !== app.id))}><Trash2 className="text-destructive" /></Button></div>)}</div>
       </aside>
       <WallpaperDialog open={wallpaperOpen} onOpenChange={setWallpaperOpen} activeId={customWallpaper ? "custom" : wallpaper.id} onChoose={chooseWallpaper} onUrl={useWallpaperUrl} onUpload={uploadWallpaper} />

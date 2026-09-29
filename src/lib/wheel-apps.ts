@@ -11,24 +11,21 @@ export const MAX_APPS = 40;
 
 export const BUILT_IN_APPS: WheelApp[] = [
   { id: "home", label: "Home", to: "/", emoji: "🏠" },
-  { id: "ludo", label: "Ludo 4D Arena", to: "/ludo", emoji: "🎲" },
-  { id: "rooms", label: "Voice Lounge (8-Seat)", to: "/rooms", emoji: "🎙️" },
-  { id: "spin", label: "Fortune Wheel", to: "/spin", emoji: "🎡" },
-  { id: "diamonds", label: "Diamond Bank", to: "/diamonds", emoji: "💎" },
-  { id: "board", label: "Hall of Fame", to: "/leaderboard", emoji: "🏆" },
-  { id: "profile", label: "Profile", to: "/profile", emoji: "👤" },
-  { id: "gifts", label: "Gifts Store", to: "/gifts", emoji: "🎁" },
   { id: "phone", label: "Phone", to: "tel:", emoji: "📞" },
   { id: "camera", label: "Camera", to: "camera", emoji: "📷" },
-  { id: "messages", label: "Messages", to: "/messages", emoji: "💬" },
+  { id: "messages", label: "Messages", to: "sms:", emoji: "💬" },
   { id: "chrome", label: "Chrome", to: "https://google.com", emoji: "🌐" },
   { id: "calculator", label: "Calculator", to: "calculator", emoji: "🧮" },
   { id: "clock", label: "Clock", to: "clock", emoji: "⏰" },
   { id: "gallery", label: "Gallery", to: "gallery", emoji: "🖼️" },
   { id: "settings", label: "Settings", to: "/settings", emoji: "⚙️" },
-  { id: "explore", label: "Explore", to: "/explore", emoji: "🧭" },
-  { id: "create", label: "Create", to: "/create", emoji: "✨" },
-  { id: "stats", label: "Stats", to: "/stats", emoji: "📊" },
+  { id: "contacts", label: "Contacts", to: "https://contacts.google.com", emoji: "👥" },
+  { id: "calendar", label: "Calendar", to: "https://calendar.google.com", emoji: "📅" },
+  { id: "drive", label: "Drive", to: "https://drive.google.com", emoji: "🗂️" },
+  { id: "notes", label: "Notes", to: "https://keep.google.com", emoji: "📝" },
+  { id: "weather", label: "Weather", to: "https://weather.com", emoji: "🌤️" },
+  { id: "music", label: "Music", to: "https://music.youtube.com", emoji: "🎵" },
+  { id: "maps", label: "Maps", to: "https://maps.google.com", emoji: "🗺️" },
 ];
 
 export const PRESET_APPS: WheelApp[] = [
