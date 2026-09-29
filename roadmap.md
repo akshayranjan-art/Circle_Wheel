@@ -29,3 +29,12 @@
 - [ ] Progression upgrades: replay room, trophy wall, evolving skins, knockout brackets and live streams
 - [ ] Special modes: ghost turns, electric dice, time warp, portals, sudden death and reconnect takeover
 - [ ] Admin moderation: room monitor, reports, mute/kick/ban and audit trail
+
+## Launcher-only revision
+
+- [ ] Remove Ludo/game references from the launcher experience
+- [ ] Replace circular orbit with one full-height vertical edge launcher
+- [ ] Add light/dark appearance control plus brightness and volume controls
+- [ ] Keep wallpaper presets, custom upload/URL, A-Z index, search and shortcut editing
+- [ ] Add clean text-free wallpaper choices based on the supplied visual references
+- [ ] Keep browser-safe add-shortcut support; installed phone app discovery is unavailable to web apps
