@@ -138,7 +138,10 @@ export function LauncherHome() {
   const jumpToLetter = useCallback((letter: string) => {
     setActiveLetter(letter);
     const index = visibleApps.findIndex((app) => app.label.toUpperCase().startsWith(letter));
-    if (index >= 0 && visibleApps.length) apply(-(index * 360) / visibleApps.length);
+    if (index >= 0 && visibleApps.length) {
+      const cycle = Math.max(visibleApps.length * 92, 736);
+      apply((cycle / 2 - index * 92) / 3.2);
+    }
   }, [apply, visibleApps]);
 
   const pickLetter = (clientY: number) => {
