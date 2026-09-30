@@ -1,13 +1,30 @@
 export type WheelApp = {
   id: string;
   label: string;
-  /** Internal route ("/ludo") or external link ("https://…", "whatsapp://…") */
+  /** Internal route or external link, including supported phone URL schemes. */
   to: string;
   emoji: string;
   custom?: boolean;
 };
 
+export type LauncherPreferences = {
+  darkMode: boolean;
+  brightness: number;
+  volume: number;
+  iconSize: number;
+  showLabels: boolean;
+};
+
 export const MAX_APPS = 40;
+export const LAUNCHER_APPS_KEY = "orbit-launcher-apps-v3";
+export const LAUNCHER_PREFERENCES_KEY = "orbit-launcher-preferences-v1";
+export const DEFAULT_LAUNCHER_PREFERENCES: LauncherPreferences = {
+  darkMode: true,
+  brightness: 100,
+  volume: 70,
+  iconSize: 58,
+  showLabels: true,
+};
 
 export const BUILT_IN_APPS: WheelApp[] = [
   { id: "home", label: "Home", to: "/", emoji: "🏠" },
@@ -26,6 +43,9 @@ export const BUILT_IN_APPS: WheelApp[] = [
   { id: "weather", label: "Weather", to: "https://weather.com", emoji: "🌤️" },
   { id: "music", label: "Music", to: "https://music.youtube.com", emoji: "🎵" },
   { id: "maps", label: "Maps", to: "https://maps.google.com", emoji: "🗺️" },
+  { id: "files", label: "Files", to: "https://drive.google.com", emoji: "📁" },
+  { id: "photos", label: "Photos", to: "https://photos.google.com", emoji: "🌄" },
+  { id: "translate", label: "Translate", to: "https://translate.google.com", emoji: "🌐" },
 ];
 
 export const PRESET_APPS: WheelApp[] = [
@@ -39,5 +59,44 @@ export const PRESET_APPS: WheelApp[] = [
   { id: "p-gm", label: "Gmail", to: "https://mail.google.com", emoji: "✉️" },
   { id: "p-map", label: "Maps", to: "https://maps.google.com", emoji: "🗺️" },
 ];
+
+export const DEFAULT_APPS = [...BUILT_IN_APPS, ...PRESET_APPS].slice(0, MAX_APPS);
+
+export function loadLauncherApps(): WheelApp[] {
+  if (typeof window === "undefined") return DEFAULT_APPS;
+  try {
+    const raw = localStorage.getItem(LAUNCHER_APPS_KEY);
+    if (!raw) return DEFAULT_APPS;
+    const parsed = JSON.parse(raw) as WheelApp[];
+    if (!Array.isArray(parsed)) return DEFAULT_APPS;
+    const safe = parsed.filter((app) => app && typeof app.id === "string" && typeof app.label === "string" && typeof app.to === "string" && !["/ludo", "/rooms", "/spin", "/diamonds", "/leaderboard", "/gifts"].includes(app.to));
+    const existing = new Set(safe.map((app) => app.id));
+    return [...safe, ...DEFAULT_APPS.filter((app) => !existing.has(app.id))].slice(0, MAX_APPS);
+  } catch {
+    return DEFAULT_APPS;
+  }
+}
+
+export function saveLauncherApps(apps: WheelApp[]) {
+  const limited = apps.slice(0, MAX_APPS);
+  localStorage.setItem(LAUNCHER_APPS_KEY, JSON.stringify(limited));
+  window.dispatchEvent(new CustomEvent("orbit-launcher-apps", { detail: limited }));
+  return limited;
+}
+
+export function loadLauncherPreferences(): LauncherPreferences {
+  if (typeof window === "undefined") return DEFAULT_LAUNCHER_PREFERENCES;
+  try {
+    const saved = JSON.parse(localStorage.getItem(LAUNCHER_PREFERENCES_KEY) ?? "null") as Partial<LauncherPreferences> | null;
+    return { ...DEFAULT_LAUNCHER_PREFERENCES, ...saved };
+  } catch {
+    return DEFAULT_LAUNCHER_PREFERENCES;
+  }
+}
+
+export function saveLauncherPreferences(preferences: LauncherPreferences) {
+  localStorage.setItem(LAUNCHER_PREFERENCES_KEY, JSON.stringify(preferences));
+  window.dispatchEvent(new CustomEvent("orbit-launcher-preferences", { detail: preferences }));
+}
 
 export const isExternal = (to: string) => !to.startsWith("/");
