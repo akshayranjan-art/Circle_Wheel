@@ -11,7 +11,6 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { RadialNav } from "@/components/radial-nav";
 import { OrbitProvider } from "@/components/orbit-provider";
 import { WalletProvider } from "@/components/wallet-provider";
 import { LanguageProvider } from "@/lib/language-context";
@@ -135,7 +134,6 @@ function RootComponent() {
           <WalletProvider>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
-            <RadialNav />
             <Toaster position="top-center" />
           </WalletProvider>
         </LanguageProvider>
