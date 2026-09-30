@@ -38,3 +38,6 @@
 - [x] Keep wallpaper presets, custom upload/URL, A-Z index, search and shortcut editing
 - [ ] Add clean text-free wallpaper choices based on the supplied visual references
 - [x] Keep browser-safe add-shortcut support; installed phone app discovery is unavailable to web apps
+- [x] Restore large right-side circular orbit with three glowing rails and touch inertia
+- [x] Add left-side glossy favorite app cards and 28/40 default shortcuts
+- [x] Add synchronized icon-size, labels, appearance, sound, brightness, and app-lock settings
