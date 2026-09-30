@@ -13,6 +13,7 @@ export type LauncherPreferences = {
   volume: number;
   iconSize: number;
   showLabels: boolean;
+  appLocked: boolean;
 };
 
 export const MAX_APPS = 40;
@@ -24,6 +25,7 @@ export const DEFAULT_LAUNCHER_PREFERENCES: LauncherPreferences = {
   volume: 70,
   iconSize: 58,
   showLabels: true,
+  appLocked: false,
 };
 
 export const BUILT_IN_APPS: WheelApp[] = [
