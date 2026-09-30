@@ -46,7 +46,7 @@ export function LauncherHome() {
   const alphabetRef = useRef<HTMLDivElement | null>(null);
   const rotationRef = useRef(0);
   const velocityRef = useRef(0);
-  const pointerRef = useRef<{ y: number; time: number } | null>(null);
+  const pointerRef = useRef<{ angle: number; time: number } | null>(null);
   const swipeRef = useRef<number | null>(null);
   const movedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
@@ -125,8 +125,7 @@ export function LauncherHome() {
     setActiveLetter(letter);
     const index = visibleApps.findIndex((app) => app.label.toUpperCase().startsWith(letter));
     if (index >= 0 && visibleApps.length) {
-      const cycle = Math.max(visibleApps.length * 92, 736);
-      apply((cycle / 2 - index * 92) / 3.2);
+      apply(-(index * 360) / visibleApps.length);
     }
   }, [apply, visibleApps]);
 
@@ -137,6 +136,12 @@ export function LauncherHome() {
     const ratio = Math.max(0, Math.min(0.999, (clientY - rect.top) / rect.height));
     const letter = ALPHABET[Math.floor(ratio * ALPHABET.length)];
     if (letter) jumpToLetter(letter);
+  };
+
+  const pointerAngle = (clientX: number, clientY: number) => {
+    const rect = arcRef.current?.getBoundingClientRect();
+    if (!rect) return 0;
+    return Math.atan2(clientY - (rect.top + rect.height / 2), clientX - (rect.left + rect.width / 2)) * 180 / Math.PI;
   };
 
   const launch = (app: WheelApp) => {
@@ -235,7 +240,7 @@ export function LauncherHome() {
           <div className="launcher-orbit-rail launcher-orbit-rail--outer" />
           <div className="launcher-orbit-rail launcher-orbit-rail--middle" />
           <div className="launcher-orbit-rail launcher-orbit-rail--inner" />
-          <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { y: event.clientY, time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const delta = event.clientY - previous.y; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 13; pointerRef.current = { y: event.clientY, time: now }; apply(rotationRef.current + delta * .28); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
+          <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { angle: pointerAngle(event.clientX, event.clientY), time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const angle = pointerAngle(event.clientX, event.clientY); let delta = angle - previous.angle; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 16; pointerRef.current = { angle, time: now }; apply(rotationRef.current + delta); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
             {visibleApps.length ? visibleApps.map((app, index) => { const angle = index * 360 / visibleApps.length + rotation + 180; const radians = angle * Math.PI / 180; const x = Math.cos(radians) * 248; const y = Math.sin(radians) * 248; const depth = (Math.cos(radians) + 1) / 2; return <Button key={app.id} variant="ghost" onClick={() => launch(app)} className="launcher-app-node" style={{ width: `${preferences.iconSize}px`, height: `${preferences.iconSize}px`, transform: `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0) scale(${(.74 + depth * .28).toFixed(3)})`, opacity: Number((.32 + depth * .68).toFixed(3)), zIndex: Math.round(depth * 20) }}><span className="launcher-app-icon" style={{ fontSize: `${preferences.iconSize * .4}px` }}>{app.emoji}</span>{preferences.showLabels && <span className="launcher-app-label">{app.label}</span>}</Button>; }) : <div className="launcher-empty">No apps found</div>}
           </div>
           <Button variant="ghost" size="icon" className="launcher-orbit-add" onClick={() => openEditor()} disabled={apps.length >= MAX_APPS || preferences.appLocked} aria-label="Add app"><Plus /></Button>
