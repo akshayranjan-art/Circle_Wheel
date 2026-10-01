@@ -12,3 +12,4 @@
 <!-- LOVABLE:END -->
 
 - Keep launcher shortcut state centralized in `wheel-apps.ts` types plus the launcher’s persisted store so arc, search, and customization stay synchronized.
+- Keep orbit and edge shortcuts as separate persisted lists with a shared `WheelApp` schema so both scroll systems remain independently customizable.
