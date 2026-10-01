@@ -25,7 +25,7 @@ const WALLPAPERS = [
   { id: "metal", name: "Liquid Metal", src: metalWallpaper },
 ];
 type Wallpaper = (typeof WALLPAPERS)[number];
-type EditDraft = { id?: string; label: string; to: string; emoji: string; iconImage?: string; rail: LauncherRail };
+type EditDraft = { id?: string; label: string; to: string; emoji: string; iconImage: string | undefined; rail: LauncherRail };
 
 function normalizedTarget(value: string) {
   const target = value.trim();
@@ -55,7 +55,7 @@ export function LauncherHome() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [wallpaperOpen, setWallpaperOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [draft, setDraft] = useState<EditDraft>({ label: "", to: "", emoji: "✦", rail: "orbit" });
+  const [draft, setDraft] = useState<EditDraft>({ label: "", to: "", emoji: "✦", iconImage: undefined, rail: "orbit" });
   const [wallpaper, setWallpaper] = useState<Wallpaper>(WALLPAPERS[0] ?? { id: "city", name: "Neon City", src: cityWallpaper });
   const [customWallpaper, setCustomWallpaper] = useState("");
   const [preferences, setPreferences] = useState<LauncherPreferences>(DEFAULT_LAUNCHER_PREFERENCES);
@@ -132,15 +132,15 @@ export function LauncherHome() {
     else window.open(app.to, "_blank", "noopener,noreferrer");
   };
   const openEditor = (rail: LauncherRail, app?: WheelApp) => {
-    setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji, iconImage: app.iconImage, rail } : { label: "", to: "", emoji: "✦", rail });
+    setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji, iconImage: app.iconImage, rail } : { label: "", to: "", emoji: "✦", iconImage: undefined, rail });
     setEditorOpen(true);
   };
   const saveDraft = () => {
-    if (preferences.appLocked) return toast.error("Unlock launcher before editing apps");
-    if (!draft.label.trim() || !draft.to.trim()) return toast.error("App name aur link dono daalo");
+    if (preferences.appLocked) { toast.error("Unlock launcher before editing apps"); return; }
+    if (!draft.label.trim() || !draft.to.trim()) { toast.error("App name aur link dono daalo"); return; }
     const source = draft.rail === "orbit" ? apps : edgeApps;
-    if (!draft.id && source.length >= MAX_APPS) return toast.error("40 apps capacity full hai");
-    const app: WheelApp = { id: draft.id ?? `${draft.rail}-${Date.now()}`, label: draft.label.trim(), to: normalizedTarget(draft.to), emoji: draft.emoji.trim() || "✦", iconImage: draft.iconImage, custom: true };
+    if (!draft.id && source.length >= MAX_APPS) { toast.error("40 apps capacity full hai"); return; }
+    const app: WheelApp = { id: draft.id ?? `${draft.rail}-${Date.now()}`, label: draft.label.trim(), to: normalizedTarget(draft.to), emoji: draft.emoji.trim() || "✦", ...(draft.iconImage ? { iconImage: draft.iconImage } : {}), custom: true };
     saveRail(draft.rail, draft.id ? source.map((item) => item.id === draft.id ? app : item) : [...source, app]);
     setEditorOpen(false);
     toast.success(draft.id ? "Shortcut update ho gaya" : `Shortcut ${draft.rail === "orbit" ? "orbit" : "edge rail"} me add ho gaya`);
@@ -148,20 +148,22 @@ export function LauncherHome() {
   const moveApp = (rail: LauncherRail, index: number, direction: -1 | 1) => {
     const source = rail === "orbit" ? apps : edgeApps;
     const target = index + direction;
-    if (!source[index] || !source[target]) return;
-    const next = [...source]; [next[index], next[target]] = [next[target], next[index]];
+    const current = source[index];
+    const other = source[target];
+    if (!current || !other) return;
+    const next = [...source]; next[index] = other; next[target] = current;
     saveRail(rail, next);
   };
   const uploadIcon = (file?: File) => {
     if (!file?.type.startsWith("image/")) return;
-    if (file.size > 3 * 1024 * 1024) return toast.error("Icon 3 MB se chhota rakho");
+    if (file.size > 3 * 1024 * 1024) { toast.error("Icon 3 MB se chhota rakho"); return; }
     const reader = new FileReader();
     reader.onload = () => { if (typeof reader.result === "string") setDraft((value) => ({ ...value, iconImage: reader.result as string })); };
     reader.readAsDataURL(file);
   };
   const uploadWallpaper = (file?: File) => {
     if (!file?.type.startsWith("image/")) return;
-    if (file.size > 10 * 1024 * 1024) return toast.error("Wallpaper 10 MB se chhota rakho");
+    if (file.size > 10 * 1024 * 1024) { toast.error("Wallpaper 10 MB se chhota rakho"); return; }
     const reader = new FileReader();
     reader.onload = () => { if (typeof reader.result !== "string") return; setCustomWallpaper(reader.result); try { localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: reader.result })); } catch { toast.info("Wallpaper is session ke liye set hai"); } };
     reader.readAsDataURL(file);
@@ -208,7 +210,7 @@ export function LauncherHome() {
         <ManageList title="Edge apps" rail="edge" apps={edgeApps} locked={preferences.appLocked} onMove={moveApp} onEdit={openEditor} onRemove={(rail, id) => saveRail(rail, edgeApps.filter((app) => app.id !== id))} />
       </aside>
 
-      <WallpaperDialog open={wallpaperOpen} onOpenChange={setWallpaperOpen} activeId={customWallpaper ? "custom" : wallpaper.id} onChoose={(choice) => { setWallpaper(choice); setCustomWallpaper(""); localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ id: choice.id })); }} onUrl={(url) => { if (!/^https:\/\//i.test(url)) return toast.error("Valid https image URL daalo"); setCustomWallpaper(url); localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: url })); }} onUpload={uploadWallpaper} />
+      <WallpaperDialog open={wallpaperOpen} onOpenChange={setWallpaperOpen} activeId={customWallpaper ? "custom" : wallpaper.id} onChoose={(choice) => { setWallpaper(choice); setCustomWallpaper(""); localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ id: choice.id })); }} onUrl={(url) => { if (!/^https:\/\//i.test(url)) { toast.error("Valid https image URL daalo"); return; } setCustomWallpaper(url); localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: url })); }} onUpload={uploadWallpaper} />
       <Dialog open={editorOpen} onOpenChange={setEditorOpen}><DialogContent className="neon-panel max-w-sm"><DialogHeader><DialogTitle>{draft.id ? "Customize shortcut" : `Add to ${draft.rail} rail`}</DialogTitle></DialogHeader><div className="launcher-icon-editor"><div className="launcher-icon-preview">{draft.iconImage ? <img src={draft.iconImage} alt="Custom app icon" /> : draft.emoji}</div><div className="grid gap-2"><Input value={draft.emoji} onChange={(event) => setDraft((value) => ({ ...value, emoji: event.target.value.slice(0, 3), iconImage: undefined }))} aria-label="App icon emoji" placeholder="Emoji" /><label className="launcher-upload launcher-upload--small"><Upload className="h-4 w-4" /> Own icon<input type="file" accept="image/*" className="sr-only" onChange={(event) => uploadIcon(event.target.files?.[0])} /></label></div></div><Input value={draft.label} onChange={(event) => setDraft((value) => ({ ...value, label: event.target.value }))} placeholder="App name" /><Input value={draft.to} onChange={(event) => setDraft((value) => ({ ...value, to: event.target.value }))} placeholder="Website URL or app path" /><Button onClick={saveDraft}>{draft.id ? "Save changes" : "Add to launcher"}</Button></DialogContent></Dialog>
     </div>
   );
