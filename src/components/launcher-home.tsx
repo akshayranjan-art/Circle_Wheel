@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, ChevronUp, GripVertical, ImagePlus, Lock, Moon, Pencil, Plus, Search, Settings2, Sun, Trash2, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Calculator, CalendarDays, Camera, ChevronUp, Clock3, CloudSun, ContactRound, Crown, Facebook, FolderOpen, GalleryHorizontal, Globe2, GripVertical, Home, ImagePlus, Instagram, Languages, Lock, Mail, Map, MessageCircle, Moon, Music2, Pencil, Phone, Play, Plus, Search, Settings2, ShoppingBag, Sparkles, StickyNote, Sun, Trash2, Upload, Users, Volume2, VolumeX, X } from "lucide-react";
 import { toast } from "sonner";
 import cityWallpaper from "@/assets/wallpaper-neon-city.jpg";
 import orbitWallpaper from "@/assets/wallpaper-orbit-space.jpg";
@@ -8,7 +8,12 @@ import metalWallpaper from "@/assets/wallpaper-liquid-metal.jpg";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { DEFAULT_APPS, DEFAULT_LAUNCHER_PREFERENCES, MAX_APPS, loadLauncherApps, loadLauncherPreferences, saveLauncherApps, saveLauncherPreferences, type LauncherPreferences, type WheelApp } from "@/lib/wheel-apps";
+import {
+  DEFAULT_APPS, DEFAULT_EDGE_APPS, DEFAULT_LAUNCHER_PREFERENCES, MAX_APPS,
+  loadLauncherApps, loadLauncherEdgeApps, loadLauncherPreferences,
+  saveLauncherApps, saveLauncherEdgeApps, saveLauncherPreferences,
+  type LauncherPreferences, type LauncherRail, type WheelApp,
+} from "@/lib/wheel-apps";
 import { cn } from "@/lib/utils";
 import { soundFX } from "@/lib/sound-fx";
 
@@ -19,28 +24,40 @@ const WALLPAPERS = [
   { id: "orbit", name: "Deep Orbit", src: orbitWallpaper },
   { id: "metal", name: "Liquid Metal", src: metalWallpaper },
 ];
-
 type Wallpaper = (typeof WALLPAPERS)[number];
-type EditDraft = { id?: string; label: string; to: string; emoji: string };
+type EditDraft = { id?: string; label: string; to: string; emoji: string; iconImage: string | undefined; rail: LauncherRail };
 
 function normalizedTarget(value: string) {
   const target = value.trim();
   return target.startsWith("/") || /^[a-z]+:/i.test(target) ? target : `https://${target}`;
 }
 
+function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: LauncherPreferences["iconPack"] }) {
+  const key = app.id.replace(/^edge-/, "").replace(/^p-/, "");
+  const Icon = ({
+    home: Home, phone: Phone, camera: Camera, messages: MessageCircle, chrome: Globe2,
+    calculator: Calculator, clock: Clock3, gallery: GalleryHorizontal, settings: Settings2,
+    contacts: ContactRound, calendar: CalendarDays, drive: FolderOpen, notes: StickyNote,
+    weather: CloudSun, music: Music2, maps: Map, files: FolderOpen, photos: GalleryHorizontal,
+    translate: Languages, yt: Play, wa: MessageCircle, ig: Instagram, sp: Music2, play: ShoppingBag,
+    fb: Facebook, x: X, gm: Mail, map: Map,
+  } as Record<string, typeof Sparkles>)[key] ?? Sparkles;
+  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
+}
+
 export function LauncherHome() {
   const navigate = useNavigate();
   const [apps, setApps] = useState<WheelApp[]>(DEFAULT_APPS);
+  const [edgeApps, setEdgeApps] = useState<WheelApp[]>(DEFAULT_EDGE_APPS);
   const [search, setSearch] = useState("");
   const [rotation, setRotation] = useState(0);
   const [activeLetter, setActiveLetter] = useState("A");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [wallpaperOpen, setWallpaperOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [draft, setDraft] = useState<EditDraft>({ label: "", to: "", emoji: "✨" });
+  const [draft, setDraft] = useState<EditDraft>({ label: "", to: "", emoji: "✦", iconImage: undefined, rail: "orbit" });
   const [wallpaper, setWallpaper] = useState<Wallpaper>(WALLPAPERS[0] ?? { id: "city", name: "Neon City", src: cityWallpaper });
   const [customWallpaper, setCustomWallpaper] = useState("");
-  const [time, setTime] = useState("05:03");
   const [preferences, setPreferences] = useState<LauncherPreferences>(DEFAULT_LAUNCHER_PREFERENCES);
   const arcRef = useRef<HTMLDivElement | null>(null);
   const alphabetRef = useRef<HTMLDivElement | null>(null);
@@ -53,216 +70,154 @@ export function LauncherHome() {
 
   useEffect(() => {
     setApps(loadLauncherApps());
+    setEdgeApps(loadLauncherEdgeApps());
     setPreferences(loadLauncherPreferences());
     try {
       const saved = JSON.parse(localStorage.getItem(WALLPAPER_KEY) ?? "null") as { id?: string; custom?: string } | null;
       const preset = WALLPAPERS.find((item) => item.id === saved?.id);
       if (preset) setWallpaper(preset);
       if (saved?.custom) setCustomWallpaper(saved.custom);
-    } catch {
-      // Keep defaults when saved launcher data is invalid.
-    }
+    } catch { /* Keep launcher defaults. */ }
   }, []);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", preferences.darkMode);
-    saveLauncherPreferences(preferences);
-  }, [preferences]);
+  useEffect(() => { document.documentElement.classList.toggle("dark", preferences.darkMode); saveLauncherPreferences(preferences); }, [preferences]);
+  useEffect(() => { soundFX.setEnabled(preferences.volume > 0); }, [preferences.volume]);
 
-  useEffect(() => {
-    soundFX.setEnabled(preferences.volume > 0);
-  }, [preferences.volume]);
-
-  useEffect(() => {
-    const update = () => setTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
-    update();
-    const timer = window.setInterval(update, 30_000);
-    return () => window.clearInterval(timer);
+  const saveRail = useCallback((rail: LauncherRail, next: WheelApp[]) => {
+    if (rail === "orbit") setApps(saveLauncherApps(next));
+    else setEdgeApps(saveLauncherEdgeApps(next));
   }, []);
 
-  const saveApps = useCallback((next: WheelApp[]) => {
-    const limited = saveLauncherApps(next);
-    setApps(limited);
-  }, []);
-
-  const visibleApps = useMemo(() => {
+  const filterApps = useCallback((items: WheelApp[]) => {
     const needle = search.trim().toLowerCase();
-    return apps.filter((app) => !needle || app.label.toLowerCase().includes(needle)).sort((a, b) => a.label.localeCompare(b.label));
-  }, [apps, search]);
+    return items.filter((app) => !needle || app.label.toLowerCase().includes(needle));
+  }, [search]);
+  const visibleApps = useMemo(() => filterApps(apps), [apps, filterApps]);
+  const visibleEdgeApps = useMemo(() => filterApps(edgeApps), [edgeApps, filterApps]);
 
-  const stop = useCallback(() => {
-    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    rafRef.current = null;
-  }, []);
-  const apply = useCallback((value: number) => {
-    rotationRef.current = value;
-    setRotation(value);
-  }, []);
-  const inertia = useCallback(() => {
-    velocityRef.current *= 0.94;
-    if (Math.abs(velocityRef.current) < 0.04) return stop();
-    apply(rotationRef.current + velocityRef.current);
-    rafRef.current = requestAnimationFrame(inertia);
-  }, [apply, stop]);
+  const stop = useCallback(() => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); rafRef.current = null; }, []);
+  const apply = useCallback((value: number) => { rotationRef.current = value; setRotation(value); }, []);
+  const inertia = useCallback(() => { velocityRef.current *= .94; if (Math.abs(velocityRef.current) < .04) return stop(); apply(rotationRef.current + velocityRef.current); rafRef.current = requestAnimationFrame(inertia); }, [apply, stop]);
 
   useEffect(() => {
     const element = arcRef.current;
     if (!element) return;
-    const onWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      stop();
-      const dy = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1);
-      velocityRef.current = Math.max(-9, Math.min(9, dy * 0.035));
-      rafRef.current = requestAnimationFrame(inertia);
-    };
+    const onWheel = (event: WheelEvent) => { event.preventDefault(); stop(); velocityRef.current = Math.max(-9, Math.min(9, event.deltaY * .035)); rafRef.current = requestAnimationFrame(inertia); };
     element.addEventListener("wheel", onWheel, { passive: false });
     return () => element.removeEventListener("wheel", onWheel);
   }, [inertia, stop]);
-
   useEffect(() => () => stop(), [stop]);
 
   const jumpToLetter = useCallback((letter: string) => {
     setActiveLetter(letter);
-    const index = visibleApps.findIndex((app) => app.label.toUpperCase().startsWith(letter));
-    if (index >= 0 && visibleApps.length) {
-      apply(-(index * 360) / visibleApps.length);
-    }
+    const sorted = [...visibleApps].sort((a, b) => a.label.localeCompare(b.label));
+    const index = sorted.findIndex((app) => app.label.toUpperCase().startsWith(letter));
+    if (index >= 0 && sorted.length) apply(-(index * 360) / sorted.length);
   }, [apply, visibleApps]);
-
   const pickLetter = (clientY: number) => {
-    const element = alphabetRef.current;
-    if (!element) return;
-    const rect = element.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(0.999, (clientY - rect.top) / rect.height));
-    const letter = ALPHABET[Math.floor(ratio * ALPHABET.length)];
+    const rect = alphabetRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const letter = ALPHABET[Math.floor(Math.max(0, Math.min(.999, (clientY - rect.top) / rect.height)) * ALPHABET.length)];
     if (letter) jumpToLetter(letter);
   };
-
-  const pointerAngle = (clientX: number, clientY: number) => {
+  const pointerAngle = (x: number, y: number) => {
     const rect = arcRef.current?.getBoundingClientRect();
-    if (!rect) return 0;
-    return Math.atan2(clientY - (rect.top + rect.height / 2), clientX - (rect.left + rect.width / 2)) * 180 / Math.PI;
+    return rect ? Math.atan2(y - (rect.top + rect.height / 2), x - (rect.left + rect.width / 2)) * 180 / Math.PI : 0;
   };
 
   const launch = (app: WheelApp) => {
     if (movedRef.current > 7) return;
-    if (app.to.startsWith("/")) {
-      void navigate({ to: app.to });
-    } else if (["camera", "calculator", "clock", "gallery"].includes(app.to)) {
-      toast.info(`${app.label} shortcut ready hai — browser phone app directly nahi khol sakta.`);
-    } else {
-      window.open(app.to, "_blank", "noopener,noreferrer");
-    }
+    if (app.to.startsWith("/")) void navigate({ to: app.to });
+    else if (["camera", "calculator", "clock", "gallery"].includes(app.to)) toast.info(`${app.label} shortcut ready hai — browser phone app directly nahi khol sakta.`);
+    else window.open(app.to, "_blank", "noopener,noreferrer");
   };
-
-  const openEditor = (app?: WheelApp) => {
-    setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji } : { label: "", to: "", emoji: "✨" });
+  const openEditor = (rail: LauncherRail, app?: WheelApp) => {
+    setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji, iconImage: app.iconImage, rail } : { label: "", to: "", emoji: "✦", iconImage: undefined, rail });
     setEditorOpen(true);
   };
-
   const saveDraft = () => {
     if (preferences.appLocked) { toast.error("Unlock launcher before editing apps"); return; }
     if (!draft.label.trim() || !draft.to.trim()) { toast.error("App name aur link dono daalo"); return; }
-    if (!draft.id && apps.length >= MAX_APPS) { toast.error("40 apps capacity full hai"); return; }
-    const app: WheelApp = { id: draft.id ?? `custom-${Date.now()}`, label: draft.label.trim(), to: normalizedTarget(draft.to), emoji: draft.emoji.trim() || "✨", custom: true };
-    saveApps(draft.id ? apps.map((item) => item.id === draft.id ? app : item) : [...apps, app]);
+    const source = draft.rail === "orbit" ? apps : edgeApps;
+    if (!draft.id && source.length >= MAX_APPS) { toast.error("40 apps capacity full hai"); return; }
+    const app: WheelApp = { id: draft.id ?? `${draft.rail}-${Date.now()}`, label: draft.label.trim(), to: normalizedTarget(draft.to), emoji: draft.emoji.trim() || "✦", ...(draft.iconImage ? { iconImage: draft.iconImage } : {}), custom: true };
+    saveRail(draft.rail, draft.id ? source.map((item) => item.id === draft.id ? app : item) : [...source, app]);
     setEditorOpen(false);
-    toast.success(draft.id ? "Shortcut update ho gaya" : "Shortcut arc me add ho gaya");
+    toast.success(draft.id ? "Shortcut update ho gaya" : `Shortcut ${draft.rail === "orbit" ? "orbit" : "edge rail"} me add ho gaya`);
   };
-
-  const moveApp = (index: number, direction: -1 | 1) => {
+  const moveApp = (rail: LauncherRail, index: number, direction: -1 | 1) => {
+    const source = rail === "orbit" ? apps : edgeApps;
     const target = index + direction;
-    const current = apps[index];
-    const other = apps[target];
+    const current = source[index];
+    const other = source[target];
     if (!current || !other) return;
-    const next = [...apps];
-    next[index] = other;
-    next[target] = current;
-    saveApps(next);
+    const next = [...source]; next[index] = other; next[target] = current;
+    saveRail(rail, next);
   };
-
-  const chooseWallpaper = (choice: Wallpaper) => {
-    setWallpaper(choice);
-    setCustomWallpaper("");
-    localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ id: choice.id }));
+  const uploadIcon = (file?: File) => {
+    if (!file?.type.startsWith("image/")) return;
+    if (file.size > 3 * 1024 * 1024) { toast.error("Icon 3 MB se chhota rakho"); return; }
+    const reader = new FileReader();
+    reader.onload = () => { if (typeof reader.result === "string") setDraft((value) => ({ ...value, iconImage: reader.result as string })); };
+    reader.readAsDataURL(file);
   };
-
-  const useWallpaperUrl = (url: string) => {
-    if (!/^https:\/\//i.test(url)) { toast.error("Valid https image URL daalo"); return; }
-    setCustomWallpaper(url);
-    localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: url }));
-    toast.success("Custom wallpaper set ho gaya");
-  };
-
   const uploadWallpaper = (file?: File) => {
     if (!file?.type.startsWith("image/")) return;
     if (file.size > 10 * 1024 * 1024) { toast.error("Wallpaper 10 MB se chhota rakho"); return; }
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result !== "string") return;
-      const image = new Image();
-      image.onload = () => {
-        const scale = Math.min(1, 1080 / image.width);
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.max(1, Math.round(image.width * scale));
-        canvas.height = Math.max(1, Math.round(image.height * scale));
-        const context = canvas.getContext("2d");
-        if (!context) return;
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        const value = canvas.toDataURL("image/jpeg", 0.76);
-        setCustomWallpaper(value);
-        try { localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: value })); } catch { toast.info("Wallpaper is session ke liye set hai"); }
-      };
-      image.src = reader.result;
-    };
+    reader.onload = () => { if (typeof reader.result !== "string") return; setCustomWallpaper(reader.result); try { localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: reader.result })); } catch { toast.info("Wallpaper is session ke liye set hai"); } };
     reader.readAsDataURL(file);
   };
 
   return (
-    <div className="launcher-stage" onPointerDown={(event) => { if (event.clientY > window.innerHeight * 0.72) swipeRef.current = event.clientY; }} onPointerUp={(event) => { if (swipeRef.current !== null && swipeRef.current - event.clientY > 65) setDrawerOpen(true); swipeRef.current = null; }}>
+    <div className={cn("launcher-stage", `launcher-pack--${preferences.iconPack}`)} onPointerDown={(event) => { if (event.clientY > window.innerHeight * .72) swipeRef.current = event.clientY; }} onPointerUp={(event) => { if (swipeRef.current !== null && swipeRef.current - event.clientY > 65) setDrawerOpen(true); swipeRef.current = null; }}>
       <img src={customWallpaper || wallpaper.src} alt="" className={cn("launcher-wallpaper", `launcher-brightness-${Math.round(preferences.brightness / 10) * 10}`)} width={1080} height={1920} />
       <div className="launcher-shade" />
-      <header className="launcher-status">
-        <div><p className="text-[11px] font-semibold uppercase text-foreground/65">Orbit OS</p><p suppressHydrationWarning className="text-2xl font-semibold">{time}</p></div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button variant="ghost" size="icon" className="launcher-icon-button" onClick={() => setPreferences((value) => ({ ...value, darkMode: !value.darkMode }))} aria-label="Toggle light and dark mode">{preferences.darkMode ? <Sun /> : <Moon />}</Button>
-          <Button variant="ghost" size="icon" className="launcher-icon-button" onClick={() => setWallpaperOpen(true)} aria-label="Choose wallpaper"><ImagePlus /></Button>
-          <Link to="/settings" className="launcher-icon-button" aria-label="Open settings"><Settings2 className="h-4 w-4" /></Link>
-        </div>
+      <header className="launcher-topbar">
+        <div className="launcher-search"><Search className="h-5 w-5 shrink-0" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search Application" aria-label="Search Application" />{search && <Button variant="ghost" size="icon" onClick={() => setSearch("")} aria-label="Clear search"><X /></Button>}</div>
+        <Button variant="ghost" size="icon" className="launcher-icon-button" onClick={() => setWallpaperOpen(true)} aria-label="Choose wallpaper"><ImagePlus /></Button>
+        <Link to="/settings" className="launcher-icon-button" aria-label="Open settings"><Settings2 className="h-4 w-4" /></Link>
       </header>
-      <main className="relative z-10 min-h-screen overflow-hidden px-4 pb-24 pt-24 sm:px-8">
-        <div className="launcher-search mx-auto max-w-lg"><Search className="h-5 w-5 shrink-0" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search Application" aria-label="Search Application" />{search && <Button variant="ghost" size="icon" onClick={() => setSearch("")} aria-label="Clear search"><X /></Button>}</div>
-        <div className="mx-auto mt-4 flex max-w-lg items-center justify-end pr-6"><span className="launcher-chip shrink-0">{apps.length}/{MAX_APPS}</span></div>
-        <div className="launcher-left-stack" aria-label="Favorite apps">
-          {apps.slice(0, 5).map((app) => <Button key={app.id} variant="ghost" className="launcher-left-card" onClick={() => launch(app)}><span style={{ fontSize: `${preferences.iconSize * .46}px` }}>{app.emoji}</span>{preferences.showLabels && <small>{app.label}</small>}</Button>)}
-        </div>
-        <section className="launcher-arc-zone" aria-label="Scrollable edge application launcher">
-          <div className="launcher-orbit-rail launcher-orbit-rail--outer" />
-          <div className="launcher-orbit-rail launcher-orbit-rail--middle" />
-          <div className="launcher-orbit-rail launcher-orbit-rail--inner" />
-          <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { angle: pointerAngle(event.clientX, event.clientY), time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const angle = pointerAngle(event.clientX, event.clientY); let delta = angle - previous.angle; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 16; pointerRef.current = { angle, time: now }; apply(rotationRef.current + delta); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
-            {visibleApps.length ? visibleApps.map((app, index) => { const angle = index * 360 / visibleApps.length + rotation + 180; const radians = angle * Math.PI / 180; const x = Math.cos(radians) * 248; const y = Math.sin(radians) * 248; const depth = (Math.cos(radians) + 1) / 2; return <Button key={app.id} variant="ghost" onClick={() => launch(app)} className="launcher-app-node" style={{ width: `${preferences.iconSize}px`, height: `${preferences.iconSize}px`, transform: `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0) scale(${(.74 + depth * .28).toFixed(3)})`, opacity: Number((.32 + depth * .68).toFixed(3)), zIndex: Math.round(depth * 20) }}><span className="launcher-app-icon" style={{ fontSize: `${preferences.iconSize * .4}px` }}>{app.emoji}</span>{preferences.showLabels && <span className="launcher-app-label">{app.label}</span>}</Button>; }) : <div className="launcher-empty">No apps found</div>}
+
+      <main className="relative z-10 min-h-screen overflow-hidden">
+        <aside className="launcher-edge-rail" aria-label="Independent edge apps">
+          <div className="launcher-edge-scroll">
+            <Button variant="ghost" className="launcher-edge-add" onClick={() => openEditor("edge")} disabled={edgeApps.length >= MAX_APPS || preferences.appLocked} aria-label="Add edge app"><Plus /></Button>
+            {visibleEdgeApps.map((app) => <Button key={app.id} variant="ghost" className="launcher-edge-card" style={{ minHeight: preferences.leftIconSize + 22 }} onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("edge", app); }}><AppIcon app={app} size={preferences.leftIconSize * .7} pack={preferences.iconPack} />{preferences.showLabels && <small>{app.label}</small>}</Button>)}
           </div>
-          <Button variant="ghost" size="icon" className="launcher-orbit-add" onClick={() => openEditor()} disabled={apps.length >= MAX_APPS || preferences.appLocked} aria-label="Add app"><Plus /></Button>
+          <span className="launcher-edge-count">{edgeApps.length}/{MAX_APPS}</span>
+        </aside>
+
+        <section className="launcher-arc-zone" aria-label="Scrollable circular application launcher">
+          <div className="launcher-orbit-rail launcher-orbit-rail--outer" /><div className="launcher-orbit-rail launcher-orbit-rail--middle" /><div className="launcher-orbit-rail launcher-orbit-rail--inner" />
+          <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { angle: pointerAngle(event.clientX, event.clientY), time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const angle = pointerAngle(event.clientX, event.clientY); let delta = angle - previous.angle; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 16; pointerRef.current = { angle, time: now }; apply(rotationRef.current + delta); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
+            {visibleApps.length ? visibleApps.map((app, index) => { const angle = index * 360 / visibleApps.length + rotation + 180; const radians = angle * Math.PI / 180; const x = Math.cos(radians) * 248; const y = Math.sin(radians) * 248; const depth = (Math.cos(radians) + 1) / 2; return <Button key={app.id} variant="ghost" onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("orbit", app); }} className="launcher-app-node" style={{ width: preferences.iconSize, height: preferences.iconSize, transform: `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0) scale(${(.74 + depth * .28).toFixed(3)})`, opacity: Number((.3 + depth * .7).toFixed(3)), zIndex: Math.round(depth * 20) }}><AppIcon app={app} size={preferences.iconSize * .52} pack={preferences.iconPack} />{preferences.showLabels && <span className="launcher-app-label">{app.label}</span>}</Button>; }) : <div className="launcher-empty">No apps found</div>}
+          </div>
+          <Button variant="ghost" size="icon" className="launcher-orbit-add" onClick={() => openEditor("orbit")} disabled={apps.length >= MAX_APPS || preferences.appLocked} aria-label="Add orbit app"><Plus /></Button>
+          <span className="launcher-orbit-count">{apps.length}/{MAX_APPS}</span>
         </section>
         <div ref={alphabetRef} className="launcher-alphabet" onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); pickLetter(event.clientY); }} onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) pickLetter(event.clientY); }} aria-label="A to Z quick jump">{ALPHABET.map((letter) => <button key={letter} type="button" className={cn("launcher-letter", activeLetter === letter && "launcher-letter--active")} onClick={() => jumpToLetter(letter)}>{letter}</button>)}</div>
       </main>
-      <div className="launcher-dock">{apps.slice(0, 4).map((app) => <button key={app.id} type="button" onClick={() => launch(app)} className="launcher-dock-app"><span>{app.emoji}</span><small>{app.label}</small></button>)}</div>
+
+      <div className="launcher-dock">{apps.slice(0, 4).map((app) => <button key={app.id} type="button" onClick={() => launch(app)} className="launcher-dock-app"><AppIcon app={app} size={34} pack={preferences.iconPack} />{preferences.showLabels && <small>{app.label}</small>}</button>)}</div>
       <Button className="launcher-drawer-handle" variant="ghost" onClick={() => setDrawerOpen(true)}><ChevronUp className="h-5 w-5" /><span>Swipe up</span></Button>
       <div className={cn("launcher-drawer-backdrop", drawerOpen && "launcher-drawer-backdrop--open")} onClick={() => setDrawerOpen(false)} />
-      <aside className={cn("launcher-drawer", drawerOpen && "launcher-drawer--open")}><div className="launcher-drawer-grip" /><div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pb-4"><div className="min-w-0"><h2 className="truncate text-lg font-semibold">Quick drawer</h2><p className="text-xs text-muted-foreground">Reorder, edit, remove, or add up to 40 apps.</p></div><Button variant="ghost" size="icon" onClick={() => setDrawerOpen(false)}><X /></Button></div>
-        <div className="launcher-tools px-5"><Button onClick={() => openEditor()} disabled={apps.length >= MAX_APPS || preferences.appLocked}><Plus /> Add shortcut</Button><Button variant="outline" onClick={() => setWallpaperOpen(true)}><ImagePlus /> Wallpaper</Button><Button variant="outline" onClick={() => setPreferences((value) => ({ ...value, darkMode: !value.darkMode }))}>{preferences.darkMode ? <Sun /> : <Moon />} Appearance</Button><Button variant={preferences.appLocked ? "default" : "outline"} onClick={() => setPreferences((value) => ({ ...value, appLocked: !value.appLocked }))}><Lock /> {preferences.appLocked ? "Unlock" : "App lock"}</Button></div>
-        <div className="launcher-control-panel mx-5 mt-4">
-          <label><Sun className="h-4 w-4" /><span>Brightness</span><input type="range" min="40" max="100" step="10" value={preferences.brightness} onChange={(event) => setPreferences((value) => ({ ...value, brightness: Number(event.target.value) }))} /><b>{preferences.brightness}%</b></label>
-          <label>{preferences.volume ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}<span>Launcher sound</span><input type="range" min="0" max="100" step="10" value={preferences.volume} onChange={(event) => setPreferences((value) => ({ ...value, volume: Number(event.target.value) }))} /><b>{preferences.volume}%</b></label>
-          <label><Settings2 className="h-4 w-4" /><span>Icon size</span><input type="range" min="46" max="74" step="2" value={preferences.iconSize} onChange={(event) => setPreferences((value) => ({ ...value, iconSize: Number(event.target.value) }))} /><b>{preferences.iconSize}px</b></label>
-        </div>
-        <div className="mt-5 max-h-[46vh] space-y-2 overflow-y-auto px-5 pb-8">{apps.map((app, index) => <div key={app.id} className="launcher-manage-row"><GripVertical className="h-4 w-4 shrink-0 text-muted-foreground" /><span className="text-xl">{app.emoji}</span><span className="min-w-0 flex-1 truncate text-sm font-medium">{app.label}</span><Button variant="ghost" size="icon" onClick={() => moveApp(index, -1)} disabled={preferences.appLocked || index === 0}><ArrowUp /></Button><Button variant="ghost" size="icon" onClick={() => moveApp(index, 1)} disabled={preferences.appLocked || index === apps.length - 1}><ArrowDown /></Button><Button variant="ghost" size="icon" onClick={() => openEditor(app)} disabled={preferences.appLocked}><Pencil /></Button><Button variant="ghost" size="icon" onClick={() => saveApps(apps.filter((item) => item.id !== app.id))} disabled={preferences.appLocked}><Trash2 className="text-destructive" /></Button></div>)}</div>
+      <aside className={cn("launcher-drawer", drawerOpen && "launcher-drawer--open")}><div className="launcher-drawer-grip" /><div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pb-4"><div><h2 className="text-lg font-semibold">Quick drawer</h2><p className="text-xs text-muted-foreground">Two independent rails · 40 + 40 shortcuts</p></div><Button variant="ghost" size="icon" onClick={() => setDrawerOpen(false)}><X /></Button></div>
+        <div className="launcher-tools px-5"><Button onClick={() => openEditor("orbit")} disabled={apps.length >= MAX_APPS || preferences.appLocked}><Plus /> Orbit app</Button><Button onClick={() => openEditor("edge")} disabled={edgeApps.length >= MAX_APPS || preferences.appLocked}><Plus /> Edge app</Button><Button variant="outline" onClick={() => setWallpaperOpen(true)}><ImagePlus /> Wallpaper</Button><Button variant="outline" onClick={() => setPreferences((value) => ({ ...value, darkMode: !value.darkMode }))}>{preferences.darkMode ? <Sun /> : <Moon />} Appearance</Button><Button variant={preferences.appLocked ? "default" : "outline"} onClick={() => setPreferences((value) => ({ ...value, appLocked: !value.appLocked }))}><Lock /> {preferences.appLocked ? "Unlock" : "App lock"}</Button><Button variant="outline" asChild><Link to="/settings"><Sparkles /> Icon packs</Link></Button></div>
+        <div className="launcher-control-panel mx-5 mt-4"><label><Sun className="h-4 w-4" /><span>Brightness</span><input type="range" min="40" max="100" step="10" value={preferences.brightness} onChange={(event) => setPreferences((value) => ({ ...value, brightness: Number(event.target.value) }))} /><b>{preferences.brightness}%</b></label><label>{preferences.volume ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}<span>Sound</span><input type="range" min="0" max="100" step="10" value={preferences.volume} onChange={(event) => setPreferences((value) => ({ ...value, volume: Number(event.target.value) }))} /><b>{preferences.volume}%</b></label><label><Settings2 className="h-4 w-4" /><span>Orbit size</span><input type="range" min="46" max="82" step="2" value={preferences.iconSize} onChange={(event) => setPreferences((value) => ({ ...value, iconSize: Number(event.target.value) }))} /><b>{preferences.iconSize}px</b></label></div>
+        <div className="launcher-premium mx-5 mt-4"><Crown /><div><b>Dual-scroll Lifetime</b><small>80 slots · premium packs · full customization</small></div><strong>₹499</strong></div>
+        <ManageList title="Orbit apps" rail="orbit" apps={apps} locked={preferences.appLocked} onMove={moveApp} onEdit={openEditor} onRemove={(rail, id) => saveRail(rail, apps.filter((app) => app.id !== id))} />
+        <ManageList title="Edge apps" rail="edge" apps={edgeApps} locked={preferences.appLocked} onMove={moveApp} onEdit={openEditor} onRemove={(rail, id) => saveRail(rail, edgeApps.filter((app) => app.id !== id))} />
       </aside>
-      <WallpaperDialog open={wallpaperOpen} onOpenChange={setWallpaperOpen} activeId={customWallpaper ? "custom" : wallpaper.id} onChoose={chooseWallpaper} onUrl={useWallpaperUrl} onUpload={uploadWallpaper} />
-      <Dialog open={editorOpen} onOpenChange={setEditorOpen}><DialogContent className="neon-panel max-w-sm"><DialogHeader><DialogTitle>{draft.id ? "Customize shortcut" : "Add shortcut"}</DialogTitle></DialogHeader><div className="grid grid-cols-[4rem_minmax(0,1fr)] gap-2"><Input value={draft.emoji} onChange={(event) => setDraft((value) => ({ ...value, emoji: event.target.value.slice(0, 3) }))} aria-label="App icon emoji" /><Input value={draft.label} onChange={(event) => setDraft((value) => ({ ...value, label: event.target.value }))} placeholder="App name" /></div><Input value={draft.to} onChange={(event) => setDraft((value) => ({ ...value, to: event.target.value }))} placeholder="Website URL or app path" /><Button onClick={saveDraft}>{draft.id ? "Save changes" : "Add to launcher"}</Button></DialogContent></Dialog>
+
+      <WallpaperDialog open={wallpaperOpen} onOpenChange={setWallpaperOpen} activeId={customWallpaper ? "custom" : wallpaper.id} onChoose={(choice) => { setWallpaper(choice); setCustomWallpaper(""); localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ id: choice.id })); }} onUrl={(url) => { if (!/^https:\/\//i.test(url)) { toast.error("Valid https image URL daalo"); return; } setCustomWallpaper(url); localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: url })); }} onUpload={uploadWallpaper} />
+      <Dialog open={editorOpen} onOpenChange={setEditorOpen}><DialogContent className="neon-panel max-w-sm"><DialogHeader><DialogTitle>{draft.id ? "Customize shortcut" : `Add to ${draft.rail} rail`}</DialogTitle></DialogHeader><div className="launcher-icon-editor"><div className="launcher-icon-preview">{draft.iconImage ? <img src={draft.iconImage} alt="Custom app icon" /> : draft.emoji}</div><div className="grid gap-2"><Input value={draft.emoji} onChange={(event) => setDraft((value) => ({ ...value, emoji: event.target.value.slice(0, 3), iconImage: undefined }))} aria-label="App icon emoji" placeholder="Emoji" /><label className="launcher-upload launcher-upload--small"><Upload className="h-4 w-4" /> Own icon<input type="file" accept="image/*" className="sr-only" onChange={(event) => uploadIcon(event.target.files?.[0])} /></label></div></div><Input value={draft.label} onChange={(event) => setDraft((value) => ({ ...value, label: event.target.value }))} placeholder="App name" /><Input value={draft.to} onChange={(event) => setDraft((value) => ({ ...value, to: event.target.value }))} placeholder="Website URL or app path" /><Button onClick={saveDraft}>{draft.id ? "Save changes" : "Add to launcher"}</Button></DialogContent></Dialog>
     </div>
   );
+}
+
+function ManageList({ title, rail, apps, locked, onMove, onEdit, onRemove }: { title: string; rail: LauncherRail; apps: WheelApp[]; locked: boolean; onMove: (rail: LauncherRail, index: number, direction: -1 | 1) => void; onEdit: (rail: LauncherRail, app?: WheelApp) => void; onRemove: (rail: LauncherRail, id: string) => void }) {
+  return <details className="launcher-manage-group mx-5 mt-4"><summary>{title}<span>{apps.length}/{MAX_APPS}</span></summary><div className="mt-2 max-h-[30vh] space-y-2 overflow-y-auto">{apps.map((app, index) => <div key={app.id} className="launcher-manage-row"><GripVertical className="h-4 w-4 text-muted-foreground" /><span className="text-xl">{app.iconImage ? <img src={app.iconImage} alt="" className="h-7 w-7 rounded-md object-cover" /> : app.emoji}</span><span className="min-w-0 flex-1 truncate text-sm font-medium">{app.label}</span><Button variant="ghost" size="icon" onClick={() => onMove(rail, index, -1)} disabled={locked || index === 0}><ArrowUp /></Button><Button variant="ghost" size="icon" onClick={() => onMove(rail, index, 1)} disabled={locked || index === apps.length - 1}><ArrowDown /></Button><Button variant="ghost" size="icon" onClick={() => onEdit(rail, app)} disabled={locked}><Pencil /></Button><Button variant="ghost" size="icon" onClick={() => onRemove(rail, app.id)} disabled={locked}><Trash2 className="text-destructive" /></Button></div>)}</div></details>;
 }
 
 function WallpaperDialog({ open, onOpenChange, activeId, onChoose, onUrl, onUpload }: { open: boolean; onOpenChange: (open: boolean) => void; activeId: string; onChoose: (choice: Wallpaper) => void; onUrl: (url: string) => void; onUpload: (file?: File) => void }) {
