@@ -11,3 +11,13 @@
 - [x] Synchronized icon-size and label controls in launcher settings
 - [x] Remove game references from the visible launcher experience
 - [x] Verify phone layout and interactions without browser errors
+
+## Dual-scroll premium launcher
+
+- [ ] Remove the remaining top launcher title/icon and move search to the top edge
+- [ ] Convert the left favorite cards into a second independently scrollable 40-app rail
+- [ ] Add controls for orbit icon size, app names, icon replacement, and full shortcut reset/customization
+- [ ] Add a ₹499 lifetime dual-scroll premium entitlement
+- [ ] Add ₹99 premium icon packs plus one free downloadable icon style
+- [ ] Create a compelling free-versus-premium feature split without blocking core launcher use
+- [ ] Connect premium purchases to a real test checkout after payment provider confirmation
