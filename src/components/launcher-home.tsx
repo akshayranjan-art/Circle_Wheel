@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, ChevronUp, Crown, GripVertical, ImagePlus, Lock, Moon, Pencil, Plus, Search, Settings2, Sparkles, Sun, Trash2, Upload, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Calculator, CalendarDays, Camera, ChevronUp, Clock3, CloudSun, ContactRound, Crown, Facebook, FolderOpen, GalleryHorizontal, Globe2, GripVertical, Home, ImagePlus, Instagram, Languages, Lock, Mail, Map, MessageCircle, Moon, Music2, Pencil, Phone, Play, Plus, Search, Settings2, ShoppingBag, Sparkles, StickyNote, Sun, Trash2, Upload, Users, Volume2, VolumeX, X } from "lucide-react";
 import { toast } from "sonner";
 import cityWallpaper from "@/assets/wallpaper-neon-city.jpg";
 import orbitWallpaper from "@/assets/wallpaper-orbit-space.jpg";
@@ -33,7 +33,16 @@ function normalizedTarget(value: string) {
 }
 
 function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: LauncherPreferences["iconPack"] }) {
-  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.emoji}</span>;
+  const key = app.id.replace(/^edge-/, "").replace(/^p-/, "");
+  const Icon = ({
+    home: Home, phone: Phone, camera: Camera, messages: MessageCircle, chrome: Globe2,
+    calculator: Calculator, clock: Clock3, gallery: GalleryHorizontal, settings: Settings2,
+    contacts: ContactRound, calendar: CalendarDays, drive: FolderOpen, notes: StickyNote,
+    weather: CloudSun, music: Music2, maps: Map, files: FolderOpen, photos: GalleryHorizontal,
+    translate: Languages, yt: Play, wa: MessageCircle, ig: Instagram, sp: Music2, play: ShoppingBag,
+    fb: Facebook, x: X, gm: Mail, map: Map,
+  } as Record<string, typeof Sparkles>)[key] ?? Sparkles;
+  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
 }
 
 export function LauncherHome() {
