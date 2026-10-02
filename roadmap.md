@@ -21,3 +21,11 @@
 - [x] Add ₹99 premium icon packs plus one free icon style
 - [x] Create a compelling free-versus-premium feature split without blocking core launcher use
 - [ ] Connect premium purchases to a real test checkout after payment provider confirmation
+
+## Launcher realism refinement
+
+- [x] Add 40 visible orbit positions with dedicated add buttons in every empty slot
+- [x] Prevent pull-to-refresh during launcher drag and rail scrolling
+- [x] Support safe web, phone, message, email, map, market, intent, and app deep links
+- [x] Move search and live status to the top, lower the dock, and tighten the swipe cue
+- [x] Add dimensional liquid-glass highlights and glow to launcher controls
