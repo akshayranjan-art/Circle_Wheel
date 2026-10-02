@@ -29,7 +29,9 @@ type EditDraft = { id?: string; label: string; to: string; emoji: string; iconIm
 
 function normalizedTarget(value: string) {
   const target = value.trim();
-  return target.startsWith("/") || /^[a-z]+:/i.test(target) ? target : `https://${target}`;
+  if (target.startsWith("/")) return target;
+  if (/^(https?:|tel:|sms:|mailto:|geo:|market:|intent:|whatsapp:)/i.test(target)) return target;
+  return `https://${target.replace(/^\/+/, "")}`;
 }
 
 function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: LauncherPreferences["iconPack"] }) {
@@ -59,6 +61,8 @@ export function LauncherHome() {
   const [wallpaper, setWallpaper] = useState<Wallpaper>(WALLPAPERS[0] ?? { id: "city", name: "Neon City", src: cityWallpaper });
   const [customWallpaper, setCustomWallpaper] = useState("");
   const [preferences, setPreferences] = useState<LauncherPreferences>(DEFAULT_LAUNCHER_PREFERENCES);
+  const [time, setTime] = useState("");
+  const [online, setOnline] = useState(true);
   const arcRef = useRef<HTMLDivElement | null>(null);
   const alphabetRef = useRef<HTMLDivElement | null>(null);
   const rotationRef = useRef(0);
@@ -82,6 +86,14 @@ export function LauncherHome() {
 
   useEffect(() => { document.documentElement.classList.toggle("dark", preferences.darkMode); saveLauncherPreferences(preferences); }, [preferences]);
   useEffect(() => { soundFX.setEnabled(preferences.volume > 0); }, [preferences.volume]);
+  useEffect(() => {
+    const updateTime = () => setTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
+    const updateNetwork = () => setOnline(navigator.onLine);
+    updateTime(); updateNetwork();
+    const timer = window.setInterval(updateTime, 30_000);
+    window.addEventListener("online", updateNetwork); window.addEventListener("offline", updateNetwork);
+    return () => { window.clearInterval(timer); window.removeEventListener("online", updateNetwork); window.removeEventListener("offline", updateNetwork); };
+  }, []);
 
   const saveRail = useCallback((rail: LauncherRail, next: WheelApp[]) => {
     if (rail === "orbit") setApps(saveLauncherApps(next));
@@ -94,6 +106,7 @@ export function LauncherHome() {
   }, [search]);
   const visibleApps = useMemo(() => filterApps(apps), [apps, filterApps]);
   const visibleEdgeApps = useMemo(() => filterApps(edgeApps), [edgeApps, filterApps]);
+  const orbitSlots = useMemo<(WheelApp | null)[]>(() => search.trim() ? visibleApps : Array.from({ length: MAX_APPS }, (_, index) => apps[index] ?? null), [apps, search, visibleApps]);
 
   const stop = useCallback(() => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); rafRef.current = null; }, []);
   const apply = useCallback((value: number) => { rotationRef.current = value; setRotation(value); }, []);
@@ -178,6 +191,7 @@ export function LauncherHome() {
         <Button variant="ghost" size="icon" className="launcher-icon-button" onClick={() => setWallpaperOpen(true)} aria-label="Choose wallpaper"><ImagePlus /></Button>
         <Link to="/settings" className="launcher-icon-button" aria-label="Open settings"><Settings2 className="h-4 w-4" /></Link>
       </header>
+      <div className="launcher-quick-status" aria-label="Quick status"><span suppressHydrationWarning>{time}</span><i className={cn(online && "launcher-status-online")} /> <small>{online ? "Online" : "Offline"}</small></div>
 
       <main className="relative z-10 min-h-screen overflow-hidden">
         <aside className="launcher-edge-rail" aria-label="Independent edge apps">
@@ -191,7 +205,7 @@ export function LauncherHome() {
         <section className="launcher-arc-zone" aria-label="Scrollable circular application launcher">
           <div className="launcher-orbit-rail launcher-orbit-rail--outer" /><div className="launcher-orbit-rail launcher-orbit-rail--middle" /><div className="launcher-orbit-rail launcher-orbit-rail--inner" />
           <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { angle: pointerAngle(event.clientX, event.clientY), time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const angle = pointerAngle(event.clientX, event.clientY); let delta = angle - previous.angle; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 16; pointerRef.current = { angle, time: now }; apply(rotationRef.current + delta); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
-            {visibleApps.length ? visibleApps.map((app, index) => { const angle = index * 360 / visibleApps.length + rotation + 180; const radians = angle * Math.PI / 180; const x = Math.cos(radians) * 248; const y = Math.sin(radians) * 248; const depth = (Math.cos(radians) + 1) / 2; return <Button key={app.id} variant="ghost" onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("orbit", app); }} className="launcher-app-node" style={{ width: preferences.iconSize, height: preferences.iconSize, transform: `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0) scale(${(.74 + depth * .28).toFixed(3)})`, opacity: Number((.3 + depth * .7).toFixed(3)), zIndex: Math.round(depth * 20) }}><AppIcon app={app} size={preferences.iconSize * .52} pack={preferences.iconPack} />{preferences.showLabels && <span className="launcher-app-label">{app.label}</span>}</Button>; }) : <div className="launcher-empty">No apps found</div>}
+            {orbitSlots.length ? orbitSlots.map((app, index) => { const angle = index * 360 / orbitSlots.length + rotation + 180; const radians = angle * Math.PI / 180; const x = Math.cos(radians) * 248; const y = Math.sin(radians) * 248; const depth = (Math.cos(radians) + 1) / 2; return app ? <Button key={app.id} variant="ghost" onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("orbit", app); }} className="launcher-app-node" style={{ width: preferences.iconSize, height: preferences.iconSize, transform: `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0) scale(${(.68 + depth * .3).toFixed(3)})`, opacity: Number((.24 + depth * .76).toFixed(3)), zIndex: Math.round(depth * 20) }}><AppIcon app={app} size={preferences.iconSize * .52} pack={preferences.iconPack} />{preferences.showLabels && <span className="launcher-app-label">{app.label}</span>}</Button> : <Button key={`empty-${index}`} variant="ghost" size="icon" onClick={() => openEditor("orbit")} disabled={preferences.appLocked} aria-label={`Add app to orbit slot ${index + 1}`} className="launcher-empty-slot" style={{ transform: `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0) scale(${(.6 + depth * .25).toFixed(3)})`, opacity: Number((.18 + depth * .58).toFixed(3)), zIndex: Math.round(depth * 20) }}><Plus /></Button>; }) : <div className="launcher-empty">No apps found</div>}
           </div>
           <Button variant="ghost" size="icon" className="launcher-orbit-add" onClick={() => openEditor("orbit")} disabled={apps.length >= MAX_APPS || preferences.appLocked} aria-label="Add orbit app"><Plus /></Button>
           <span className="launcher-orbit-count">{apps.length}/{MAX_APPS}</span>
