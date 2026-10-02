@@ -29,3 +29,10 @@
 - [x] Support safe web, phone, message, email, map, market, intent, and app deep links
 - [x] Move search and live status to the top, lower the dock, and tighten the swipe cue
 - [x] Add dimensional liquid-glass highlights and glow to launcher controls
+
+## App picker and installation
+
+- [x] Connect each empty orbit position to a searchable built-in app picker
+- [x] Preserve the exact tapped orbit position for picked and custom apps
+- [x] Add manifest-only phone installation and an Install Orbit control
+- [x] Keep native Android launcher and system-overlay permissions outside the web build

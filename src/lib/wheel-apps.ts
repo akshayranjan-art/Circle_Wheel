@@ -7,6 +7,8 @@ export type WheelApp = {
   /** User supplied icon stored as a compressed data URL. */
   iconImage?: string;
   custom?: boolean;
+  /** Fixed position in the 40-place orbit. Edge apps remain naturally ordered. */
+  slot?: number;
 };
 
 export type LauncherRail = "orbit" | "edge";
@@ -72,6 +74,23 @@ export const PRESET_APPS: WheelApp[] = [
   { id: "p-x", label: "X", to: "https://x.com", emoji: "✖️" },
   { id: "p-gm", label: "Gmail", to: "https://mail.google.com", emoji: "✉️" },
   { id: "p-map", label: "Maps", to: "https://maps.google.com", emoji: "🗺️" },
+];
+
+export const APP_PICKER_CATALOG: WheelApp[] = [
+  ...BUILT_IN_APPS,
+  ...PRESET_APPS,
+  { id: "telegram", label: "Telegram", to: "https://t.me", emoji: "✈️" },
+  { id: "discord", label: "Discord", to: "https://discord.com/app", emoji: "🎮" },
+  { id: "linkedin", label: "LinkedIn", to: "https://linkedin.com", emoji: "💼" },
+  { id: "amazon", label: "Amazon", to: "https://amazon.in", emoji: "📦" },
+  { id: "flipkart", label: "Flipkart", to: "https://flipkart.com", emoji: "🛒" },
+  { id: "netflix", label: "Netflix", to: "https://netflix.com", emoji: "🎬" },
+  { id: "meet", label: "Meet", to: "https://meet.google.com", emoji: "🎥" },
+  { id: "news", label: "News", to: "https://news.google.com", emoji: "📰" },
+  { id: "reddit", label: "Reddit", to: "https://reddit.com", emoji: "👽" },
+  { id: "pinterest", label: "Pinterest", to: "https://pinterest.com", emoji: "📌" },
+  { id: "github", label: "GitHub", to: "https://github.com", emoji: "🐙" },
+  { id: "zoom", label: "Zoom", to: "https://zoom.us/join", emoji: "📹" },
 ];
 
 export const DEFAULT_APPS = [...BUILT_IN_APPS, ...PRESET_APPS].slice(0, MAX_APPS);
