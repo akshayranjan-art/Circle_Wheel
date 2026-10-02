@@ -167,13 +167,13 @@ export function LauncherHome() {
     else window.open(app.to, "_blank", "noopener,noreferrer");
   };
   const openEditor = (rail: LauncherRail, app?: WheelApp) => {
-    setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji, iconImage: app.iconImage, rail, slot: app.slot } : { label: "", to: "", emoji: "✦", iconImage: undefined, rail });
+    setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji, iconImage: app.iconImage, rail, ...(typeof app.slot === "number" ? { slot: app.slot } : {}) } : { label: "", to: "", emoji: "✦", iconImage: undefined, rail });
     setEditorOpen(true);
   };
   const openPicker = (slot: number) => { setDraft({ label: "", to: "", emoji: "✦", iconImage: undefined, rail: "orbit", slot }); setPickerSearch(""); setPickerOpen(true); };
   const choosePickerApp = (choice: WheelApp) => {
     if (apps.length >= MAX_APPS) return;
-    const app: WheelApp = { ...choice, id: `orbit-${choice.id}-${Date.now()}`, slot: draft.slot };
+    const app: WheelApp = { ...choice, id: `orbit-${choice.id}-${Date.now()}`, ...(typeof draft.slot === "number" ? { slot: draft.slot } : {}) };
     saveRail("orbit", [...apps, app]); setPickerOpen(false); toast.success(`${choice.label} orbit me add ho gaya`);
   };
   const createCustomFromPicker = () => { setPickerOpen(false); setDraft((value) => ({ ...value, label: "", to: "", emoji: "✦", iconImage: undefined, rail: "orbit" })); setEditorOpen(true); };
