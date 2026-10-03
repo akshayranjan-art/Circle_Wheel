@@ -35,4 +35,4 @@
 - [x] Connect each empty orbit position to a searchable built-in app picker
 - [x] Preserve the exact tapped orbit position for picked and custom apps
 - [x] Add manifest-only phone installation and an Install Orbit control
-- [x] Keep native Android launcher and system-overlay permissions outside the web build
+- [x] Keep native Android launcher and system-overlay permissions outside the web build- [x] Setting: side rail visible app count 3–10

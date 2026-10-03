@@ -1020,3 +1020,8 @@
 .launcher-edge-rail::after { content: ""; position: absolute; right: -14px; top: 50%; width: 28px; height: 90px; translate: 0 -50%; border-radius: 999px; background: linear-gradient(180deg, var(--launcher-cyan), var(--launcher-violet), var(--launcher-pink)); filter: blur(10px); opacity: .55; pointer-events: none; animation: edge-peek 3.2s ease-in-out infinite; }
 @keyframes edge-peek { 50% { translate: 6px -50%; opacity: .85; } }
 @media (prefers-reduced-motion: reduce) { .launcher-app-node, .launcher-edge-rail::after { animation: none; } }
+/* Compact multi-ring orbit + solid icons */
+.launcher-arc-zone { width: min(29rem, 118vw); }
+.launcher-app-node { background: linear-gradient(160deg, oklch(0.32 0.04 280 / .95), oklch(0.12 0.02 270 / .97) 55%, oklch(0.04 0 0)) padding-box, conic-gradient(from 210deg, var(--launcher-cyan), var(--launcher-violet), var(--launcher-pink), var(--launcher-cyan)) border-box; backdrop-filter: none; }
+.launcher-app-node, .launcher-empty-slot { transition: none; }
+.launcher-edge-rail { container-type: size; } .launcher-edge-card { flex-shrink: 0; }
