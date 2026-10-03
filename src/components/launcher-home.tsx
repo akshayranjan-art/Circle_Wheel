@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { launchNative } from "@/lib/native-launch";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Calculator, CalendarDays, Camera, ChevronUp, Clock3, CloudSun, ContactRound, Crown, Download, Facebook, FolderOpen, GalleryHorizontal, Globe2, GripVertical, Home, ImagePlus, Instagram, Languages, Lock, Mail, Map, MessageCircle, Moon, Music2, Pencil, Phone, Play, Plus, Search, Settings2, ShoppingBag, Sparkles, StickyNote, Sun, Trash2, Upload, Users, Volume2, VolumeX, X } from "lucide-react";
 import { toast } from "sonner";
