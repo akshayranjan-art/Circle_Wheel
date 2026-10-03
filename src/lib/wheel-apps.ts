@@ -27,6 +27,7 @@ export type LauncherPreferences = {
   iconPack: LauncherIconPack;
   premiumPreview: boolean;
   iconOpacity: number;
+  edgeVisible: number;
 };
 
 export const MAX_APPS = 40;
@@ -47,6 +48,7 @@ export const DEFAULT_LAUNCHER_PREFERENCES: LauncherPreferences = {
   iconPack: "neon-line",
   premiumPreview: false,
   iconOpacity: 92,
+  edgeVisible: 4,
 };
 
 export const BUILT_IN_APPS: WheelApp[] = [

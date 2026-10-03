@@ -1024,3 +1024,4 @@
 .launcher-arc-zone { width: min(29rem, 118vw); }
 .launcher-app-node { background: linear-gradient(160deg, oklch(0.32 0.04 280 / .95), oklch(0.12 0.02 270 / .97) 55%, oklch(0.04 0 0)) padding-box, conic-gradient(from 210deg, var(--launcher-cyan), var(--launcher-violet), var(--launcher-pink), var(--launcher-cyan)) border-box; backdrop-filter: none; }
 .launcher-app-node, .launcher-empty-slot { transition: none; }
+.launcher-edge-rail { container-type: size; } .launcher-edge-card { flex-shrink: 0; }
