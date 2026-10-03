@@ -1004,3 +1004,19 @@
 @media (max-width: 430px) { .launcher-topbar { grid-template-columns: minmax(0,1fr) 2.5rem 2.5rem; padding-top: max(.35rem, env(safe-area-inset-top)); padding-right: 1.65rem; } .launcher-icon-button { width: 2.5rem; height: 2.5rem; } .launcher-quick-status { top: 3.85rem; } .launcher-edge-rail { top: 4.35rem; bottom: 6.9rem; } .launcher-arc-zone { width: 31rem; transform: translate(55%,-45%); } .launcher-alphabet { top: 4.35rem; bottom: 6rem; } }
 @media (min-width: 768px) { .launcher-edge-rail { left: 2rem; width: 5.5rem; } .launcher-arc-zone { right: 5rem; width: 36rem; transform: translate(38%,-46%); } .launcher-alphabet { right: .65rem; } .launcher-topbar { width: min(42rem, calc(100vw - 2rem)); margin-inline: auto; } .launcher-drawer { left: 50%; width: min(46rem,92vw); transform: translate(-50%,102%); border-radius: 1.5rem 1.5rem 0 0; } .launcher-drawer--open { transform: translate(-50%,0); } }
 @media (prefers-reduced-motion: reduce) { .launcher-drawer, .launcher-drawer-backdrop { transition: none; } }
+
+/* AMOLED liquid-glass v2 */
+.launcher-stage { background: oklch(0 0 0); }
+.launcher-stage::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(60% 40% at 85% 45%, color-mix(in oklab, var(--launcher-violet) 22%, transparent), transparent 70%), radial-gradient(40% 30% at 0% 50%, color-mix(in oklab, var(--launcher-cyan) 14%, transparent), transparent 70%), linear-gradient(oklch(0 0 0 / .55), oklch(0 0 0 / .8)); }
+.launcher-app-node, .edge-card, .launcher-icon-button, .dock { border-color: transparent; background:
+  linear-gradient(160deg, oklch(1 0 0 / .22), oklch(1 0 0 / .04) 42%, oklch(0 0 0 / .45)) padding-box,
+  conic-gradient(from 210deg, var(--launcher-cyan), var(--launcher-violet), var(--launcher-pink), oklch(0.9 0.15 90), var(--launcher-cyan)) border-box;
+  box-shadow: 0 14px 30px oklch(0 0 0 / .8), inset 0 1.5px oklch(1 0 0 / .55), inset 0 -10px 18px oklch(0 0 0 / .55), inset 0 0 14px color-mix(in oklab, var(--launcher-cyan) 22%, transparent), 0 0 22px color-mix(in oklab, var(--launcher-violet) 35%, transparent); }
+.launcher-app-node::before { content: ""; position: absolute; inset: 3px 12% auto; height: 42%; border-radius: 999px 999px 40% 40%; background: linear-gradient(oklch(1 0 0 / .6), oklch(1 0 0 / 0)); pointer-events: none; }
+.launcher-app-node:active, .edge-card:active { transform-origin: center; filter: brightness(1.25) saturate(1.3); }
+.launcher-app-node { animation: orbit-iridescent 6s linear infinite; }
+@keyframes orbit-iridescent { to { filter: hue-rotate(40deg); } }
+/* edge-peeking companion */
+.launcher-edge-rail::after { content: ""; position: absolute; right: -14px; top: 50%; width: 28px; height: 90px; translate: 0 -50%; border-radius: 999px; background: linear-gradient(180deg, var(--launcher-cyan), var(--launcher-violet), var(--launcher-pink)); filter: blur(10px); opacity: .55; pointer-events: none; animation: edge-peek 3.2s ease-in-out infinite; }
+@keyframes edge-peek { 50% { translate: 6px -50%; opacity: .85; } }
+@media (prefers-reduced-motion: reduce) { .launcher-app-node, .launcher-edge-rail::after { animation: none; } }
