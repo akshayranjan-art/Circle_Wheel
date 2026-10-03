@@ -48,6 +48,8 @@ function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: Launc
   return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
 }
 
+const ROTATION_KEY = "orbit-launcher-rotation-v1";
+
 export function LauncherHome() {
   const navigate = useNavigate();
   const [apps, setApps] = useState<WheelApp[]>(DEFAULT_APPS);
@@ -76,6 +78,17 @@ export function LauncherHome() {
   const swipeRef = useRef<number | null>(null);
   const movedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const saved = Number(sessionStorage.getItem(ROTATION_KEY));
+    if (Number.isFinite(saved) && saved !== 0) { rotationRef.current = saved; setRotation(saved); }
+    const persist = () => sessionStorage.setItem(ROTATION_KEY, String(rotationRef.current));
+    const onShow = (event: PageTransitionEvent) => { if (event.persisted) { const value = Number(sessionStorage.getItem(ROTATION_KEY)); if (Number.isFinite(value)) { rotationRef.current = value; setRotation(value); } } };
+    document.addEventListener("visibilitychange", persist);
+    window.addEventListener("pagehide", persist);
+    window.addEventListener("pageshow", onShow);
+    return () => { document.removeEventListener("visibilitychange", persist); window.removeEventListener("pagehide", persist); window.removeEventListener("pageshow", onShow); };
+  }, []);
 
   useEffect(() => {
     setApps(loadLauncherApps());
@@ -162,9 +175,9 @@ export function LauncherHome() {
 
   const launch = (app: WheelApp) => {
     if (movedRef.current > 7) return;
-    if (app.to.startsWith("/")) void navigate({ to: app.to });
-    else if (["camera", "calculator", "clock", "gallery"].includes(app.to)) toast.info(`${app.label} shortcut ready hai — browser phone app directly nahi khol sakta.`);
-    else window.open(app.to, "_blank", "noopener,noreferrer");
+    sessionStorage.setItem(ROTATION_KEY, String(rotationRef.current));
+    if (app.to.startsWith("/")) { void navigate({ to: app.to }); return; }
+    if (!launchNative(app)) toast.info(`${app.label} phone par native app se khulega — desktop par ye shortcut available nahi.`);
   };
   const openEditor = (rail: LauncherRail, app?: WheelApp) => {
     setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji, iconImage: app.iconImage, rail, ...(typeof app.slot === "number" ? { slot: app.slot } : {}) } : { label: "", to: "", emoji: "✦", iconImage: undefined, rail });
