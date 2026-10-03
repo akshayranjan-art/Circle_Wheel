@@ -9,6 +9,8 @@ export type WheelApp = {
   custom?: boolean;
   /** Fixed position in the 40-place orbit. Edge apps remain naturally ordered. */
   slot?: number;
+  /** Orbit ring: 0 outer (40), 1 middle (20), 2 inner (4). */
+  ring?: number;
 };
 
 export type LauncherRail = "orbit" | "edge";
@@ -24,9 +26,13 @@ export type LauncherPreferences = {
   leftIconSize: number;
   iconPack: LauncherIconPack;
   premiumPreview: boolean;
+  iconOpacity: number;
 };
 
 export const MAX_APPS = 40;
+export const RING_SIZES = [40, 20, 4] as const;
+export const ORBIT_MAX = 64;
+export const EDGE_MAX = 20;
 export const LAUNCHER_APPS_KEY = "orbit-launcher-apps-v3";
 export const LAUNCHER_EDGE_APPS_KEY = "orbit-launcher-edge-apps-v1";
 export const LAUNCHER_PREFERENCES_KEY = "orbit-launcher-preferences-v2";
@@ -40,6 +46,7 @@ export const DEFAULT_LAUNCHER_PREFERENCES: LauncherPreferences = {
   leftIconSize: 52,
   iconPack: "neon-line",
   premiumPreview: false,
+  iconOpacity: 92,
 };
 
 export const BUILT_IN_APPS: WheelApp[] = [
@@ -96,10 +103,10 @@ export const APP_PICKER_CATALOG: WheelApp[] = [
 export const DEFAULT_APPS = [...BUILT_IN_APPS, ...PRESET_APPS].slice(0, MAX_APPS);
 export const DEFAULT_EDGE_APPS = DEFAULT_APPS.slice(0, 12).map((app) => ({ ...app, id: `edge-${app.id}` }));
 
-function safeApps(value: unknown, fallback: WheelApp[]) {
+function safeApps(value: unknown, fallback: WheelApp[], cap = MAX_APPS) {
   if (!Array.isArray(value)) return fallback;
   const safe = value.filter((app): app is WheelApp => Boolean(app && typeof app.id === "string" && typeof app.label === "string" && typeof app.to === "string" && !["/ludo", "/rooms", "/spin", "/diamonds", "/leaderboard", "/gifts"].includes(app.to)));
-  return safe.slice(0, MAX_APPS);
+  return safe.slice(0, cap);
 }
 
 export function loadLauncherApps(): WheelApp[] {
@@ -107,9 +114,9 @@ export function loadLauncherApps(): WheelApp[] {
   try {
     const raw = localStorage.getItem(LAUNCHER_APPS_KEY);
     if (!raw) return DEFAULT_APPS;
-    const safe = safeApps(JSON.parse(raw), DEFAULT_APPS);
+    const safe = safeApps(JSON.parse(raw), DEFAULT_APPS, ORBIT_MAX);
     const existing = new Set(safe.map((app) => app.id));
-    return [...safe, ...DEFAULT_APPS.filter((app) => !existing.has(app.id))].slice(0, MAX_APPS);
+    return [...safe, ...DEFAULT_APPS.filter((app) => !existing.has(app.id))].slice(0, ORBIT_MAX);
   } catch {
     return DEFAULT_APPS;
   }
@@ -119,21 +126,21 @@ export function loadLauncherEdgeApps(): WheelApp[] {
   if (typeof window === "undefined") return DEFAULT_EDGE_APPS;
   try {
     const raw = localStorage.getItem(LAUNCHER_EDGE_APPS_KEY);
-    return raw ? safeApps(JSON.parse(raw), DEFAULT_EDGE_APPS) : DEFAULT_EDGE_APPS;
+    return raw ? safeApps(JSON.parse(raw), DEFAULT_EDGE_APPS, EDGE_MAX) : DEFAULT_EDGE_APPS;
   } catch {
     return DEFAULT_EDGE_APPS;
   }
 }
 
 export function saveLauncherApps(apps: WheelApp[]) {
-  const limited = apps.slice(0, MAX_APPS);
+  const limited = apps.slice(0, ORBIT_MAX);
   localStorage.setItem(LAUNCHER_APPS_KEY, JSON.stringify(limited));
   window.dispatchEvent(new CustomEvent("orbit-launcher-apps", { detail: limited }));
   return limited;
 }
 
 export function saveLauncherEdgeApps(apps: WheelApp[]) {
-  const limited = apps.slice(0, MAX_APPS);
+  const limited = apps.slice(0, EDGE_MAX);
   localStorage.setItem(LAUNCHER_EDGE_APPS_KEY, JSON.stringify(limited));
   window.dispatchEvent(new CustomEvent("orbit-launcher-edge-apps", { detail: limited }));
   return limited;

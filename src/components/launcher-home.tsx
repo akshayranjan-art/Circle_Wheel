@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-  APP_PICKER_CATALOG, DEFAULT_APPS, DEFAULT_EDGE_APPS, DEFAULT_LAUNCHER_PREFERENCES, MAX_APPS,
+  APP_PICKER_CATALOG, DEFAULT_APPS, DEFAULT_EDGE_APPS, DEFAULT_LAUNCHER_PREFERENCES, MAX_APPS, RING_SIZES, ORBIT_MAX, EDGE_MAX,
   loadLauncherApps, loadLauncherEdgeApps, loadLauncherPreferences,
   saveLauncherApps, saveLauncherEdgeApps, saveLauncherPreferences,
   type LauncherPreferences, type LauncherRail, type WheelApp,
@@ -26,7 +26,7 @@ const WALLPAPERS = [
   { id: "metal", name: "Liquid Metal", src: metalWallpaper },
 ];
 type Wallpaper = (typeof WALLPAPERS)[number];
-type EditDraft = { id?: string; label: string; to: string; emoji: string; iconImage: string | undefined; rail: LauncherRail; slot?: number };
+type EditDraft = { id?: string; label: string; to: string; emoji: string; iconImage: string | undefined; rail: LauncherRail; slot?: number; ring?: number };
 type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
 
 function normalizedTarget(value: string) {
@@ -50,6 +50,8 @@ function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: Launc
 }
 
 const ROTATION_KEY = "orbit-launcher-rotation-v1";
+/** Outer ring spins with the finger, middle ring counter-rotates, inner ring spins faster. */
+const RINGS = [{ radius: 200, dir: 1, scale: 1 }, { radius: 132, dir: -1.2, scale: .78 }, { radius: 62, dir: 1.6, scale: .74 }];
 
 export function LauncherHome() {
   const navigate = useNavigate();
@@ -133,20 +135,26 @@ export function LauncherHome() {
   }, [search]);
   const visibleApps = useMemo(() => filterApps(apps), [apps, filterApps]);
   const visibleEdgeApps = useMemo(() => filterApps(edgeApps), [edgeApps, filterApps]);
-  const orbitSlots = useMemo<(WheelApp | null)[]>(() => {
-    if (search.trim()) return visibleApps;
-    const slots: (WheelApp | null)[] = Array.from({ length: MAX_APPS }, () => null);
+  const ringSlots = useMemo<(WheelApp | null)[][]>(() => {
+    if (search.trim()) return [visibleApps, [], []];
+    const rings = RING_SIZES.map((size) => Array.from({ length: size }, () => null as WheelApp | null));
+    const pending: WheelApp[] = [];
     apps.forEach((app) => {
-      const preferred = typeof app.slot === "number" && app.slot >= 0 && app.slot < MAX_APPS && !slots[app.slot] ? app.slot : slots.findIndex((item) => item === null);
-      if (preferred >= 0) slots[preferred] = app;
+      const ring = typeof app.ring === "number" && rings[app.ring] ? app.ring : 0;
+      const slots = rings[ring]!;
+      const preferred = typeof app.slot === "number" && app.slot >= 0 && app.slot < slots.length && !slots[app.slot] ? app.slot : slots.findIndex((item) => item === null);
+      if (preferred >= 0) slots[preferred] = app; else pending.push(app);
     });
-    return slots;
+    pending.forEach((app) => { for (const slots of rings) { const free = slots.findIndex((item) => item === null); if (free >= 0) { slots[free] = app; return; } } });
+    return rings;
   }, [apps, search, visibleApps]);
+  const orbitSlots = ringSlots[0] ?? [];
+  const firstFree = (): [number, number] => { for (let r = 0; r < ringSlots.length; r++) { const i = (ringSlots[r] ?? []).findIndex((item) => item === null); if (i >= 0) return [i, r]; } return [-1, 0]; };
   const pickerApps = useMemo(() => { const needle = pickerSearch.trim().toLowerCase(); return APP_PICKER_CATALOG.filter((app) => !needle || app.label.toLowerCase().includes(needle)); }, [pickerSearch]);
 
   const stop = useCallback(() => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); rafRef.current = null; }, []);
   const apply = useCallback((value: number) => { rotationRef.current = value; setRotation(value); }, []);
-  const inertia = useCallback(() => { velocityRef.current *= .94; if (Math.abs(velocityRef.current) < .04) return stop(); apply(rotationRef.current + velocityRef.current); rafRef.current = requestAnimationFrame(inertia); }, [apply, stop]);
+  const inertia = useCallback(() => { velocityRef.current *= .965; if (Math.abs(velocityRef.current) < .04) return stop(); apply(rotationRef.current + velocityRef.current); rafRef.current = requestAnimationFrame(inertia); }, [apply, stop]);
 
   useEffect(() => {
     const element = arcRef.current;
@@ -181,13 +189,13 @@ export function LauncherHome() {
     if (!launchNative(app)) toast.info(`${app.label} phone par native app se khulega — desktop par ye shortcut available nahi.`);
   };
   const openEditor = (rail: LauncherRail, app?: WheelApp) => {
-    setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji, iconImage: app.iconImage, rail, ...(typeof app.slot === "number" ? { slot: app.slot } : {}) } : { label: "", to: "", emoji: "✦", iconImage: undefined, rail });
+    setDraft(app ? { id: app.id, label: app.label, to: app.to, emoji: app.emoji, iconImage: app.iconImage, rail, ...(typeof app.slot === "number" ? { slot: app.slot, ring: app.ring ?? 0 } : {}) } : { label: "", to: "", emoji: "✦", iconImage: undefined, rail });
     setEditorOpen(true);
   };
-  const openPicker = (slot: number) => { setDraft({ label: "", to: "", emoji: "✦", iconImage: undefined, rail: "orbit", slot }); setPickerSearch(""); setPickerOpen(true); };
+  const openPicker = (slot: number, ring = 0) => { setDraft({ label: "", to: "", emoji: "✦", iconImage: undefined, rail: "orbit", slot, ring }); setPickerSearch(""); setPickerOpen(true); };
   const choosePickerApp = (choice: WheelApp) => {
-    if (apps.length >= MAX_APPS) return;
-    const app: WheelApp = { ...choice, id: `orbit-${choice.id}-${Date.now()}`, ...(typeof draft.slot === "number" ? { slot: draft.slot } : {}) };
+    if (apps.length >= ORBIT_MAX) return;
+    const app: WheelApp = { ...choice, id: `orbit-${choice.id}-${Date.now()}`, ...(typeof draft.slot === "number" ? { slot: draft.slot, ring: draft.ring ?? 0 } : {}) };
     saveRail("orbit", [...apps, app]); setPickerOpen(false); toast.success(`${choice.label} orbit me add ho gaya`);
   };
   const createCustomFromPicker = () => { setPickerOpen(false); setDraft((value) => ({ ...value, label: "", to: "", emoji: "✦", iconImage: undefined, rail: "orbit" })); setEditorOpen(true); };
@@ -195,8 +203,9 @@ export function LauncherHome() {
     if (preferences.appLocked) { toast.error("Unlock launcher before editing apps"); return; }
     if (!draft.label.trim() || !draft.to.trim()) { toast.error("App name aur link dono daalo"); return; }
     const source = draft.rail === "orbit" ? apps : edgeApps;
-    if (!draft.id && source.length >= MAX_APPS) { toast.error("40 apps capacity full hai"); return; }
-    const app: WheelApp = { id: draft.id ?? `${draft.rail}-${Date.now()}`, label: draft.label.trim(), to: normalizedTarget(draft.to), emoji: draft.emoji.trim() || "✦", ...(draft.iconImage ? { iconImage: draft.iconImage } : {}), ...(typeof draft.slot === "number" ? { slot: draft.slot } : {}), custom: true };
+    const cap = draft.rail === "orbit" ? ORBIT_MAX : EDGE_MAX;
+    if (!draft.id && source.length >= cap) { toast.error(`${cap} apps capacity full hai`); return; }
+    const app: WheelApp = { id: draft.id ?? `${draft.rail}-${Date.now()}`, label: draft.label.trim(), to: normalizedTarget(draft.to), emoji: draft.emoji.trim() || "✦", ...(draft.iconImage ? { iconImage: draft.iconImage } : {}), ...(typeof draft.slot === "number" ? { slot: draft.slot, ring: draft.ring ?? 0 } : {}), custom: true };
     saveRail(draft.rail, draft.id ? source.map((item) => item.id === draft.id ? app : item) : [...source, app]);
     setEditorOpen(false);
     toast.success(draft.id ? "Shortcut update ho gaya" : `Shortcut ${draft.rail === "orbit" ? "orbit" : "edge rail"} me add ho gaya`);
@@ -245,19 +254,20 @@ export function LauncherHome() {
       <main className="relative z-10 min-h-screen overflow-hidden">
         <aside className="launcher-edge-rail" aria-label="Independent edge apps">
           <div className="launcher-edge-scroll">
-            <Button variant="ghost" className="launcher-edge-add" onClick={() => openEditor("edge")} disabled={edgeApps.length >= MAX_APPS || preferences.appLocked} aria-label="Add edge app"><Plus /></Button>
+            <Button variant="ghost" className="launcher-edge-add" onClick={() => openEditor("edge")} disabled={edgeApps.length >= EDGE_MAX || preferences.appLocked} aria-label="Add edge app"><Plus /></Button>
             {visibleEdgeApps.map((app) => <Button key={app.id} variant="ghost" className="launcher-edge-card" style={{ minHeight: preferences.leftIconSize + 22 }} onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("edge", app); }}><AppIcon app={app} size={preferences.leftIconSize * .7} pack={preferences.iconPack} />{preferences.showLabels && <small>{app.label}</small>}</Button>)}
           </div>
-          <span className="launcher-edge-count">{edgeApps.length}/{MAX_APPS}</span>
+          <span className="launcher-edge-count">{edgeApps.length}/{EDGE_MAX}</span>
         </aside>
 
         <section className="launcher-arc-zone" aria-label="Scrollable circular application launcher">
           <div className="launcher-orbit-rail launcher-orbit-rail--outer" /><div className="launcher-orbit-rail launcher-orbit-rail--middle" /><div className="launcher-orbit-rail launcher-orbit-rail--inner" />
           <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { angle: pointerAngle(event.clientX, event.clientY), time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const angle = pointerAngle(event.clientX, event.clientY); let delta = angle - previous.angle; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 16; pointerRef.current = { angle, time: now }; apply(rotationRef.current + delta); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
-            {orbitSlots.length ? orbitSlots.map((app, index) => { const angle = index * 360 / orbitSlots.length + rotation + 180; const radians = angle * Math.PI / 180; const x = Math.cos(radians) * 248; const y = Math.sin(radians) * 248; const depth = (Math.cos(radians) + 1) / 2; return app ? <Button key={app.id} variant="ghost" onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("orbit", app); }} className="launcher-app-node" style={{ width: preferences.iconSize, height: preferences.iconSize, transform: `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0) scale(${(.68 + depth * .3).toFixed(3)})`, opacity: Number((.24 + depth * .76).toFixed(3)), zIndex: Math.round(depth * 20) }}><AppIcon app={app} size={preferences.iconSize * .52} pack={preferences.iconPack} />{preferences.showLabels && <span className="launcher-app-label">{app.label}</span>}</Button> : <Button key={`empty-${index}`} variant="ghost" size="icon" onPointerDown={(event) => event.stopPropagation()} onClick={() => openPicker(index)} disabled={preferences.appLocked} aria-label={`Add app to orbit slot ${index + 1}`} className="launcher-empty-slot" style={{ transform: `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0) scale(${(.6 + depth * .25).toFixed(3)})`, opacity: Number((.18 + depth * .58).toFixed(3)), zIndex: Math.round(depth * 20) }}><Plus /></Button>; }) : <div className="launcher-empty">No apps found</div>}
+            {RINGS.map(({ radius, dir, scale }, ring) => (ringSlots[ring] ?? []).map((app, index, list) => { const angle = index * 360 / list.length + rotation * dir + 180; const radians = angle * Math.PI / 180; const x = Math.cos(radians) * radius; const y = Math.sin(radians) * radius; const depth = (Math.cos(radians) + 1) / 2; const size = preferences.iconSize * scale; const base = preferences.iconOpacity / 100; const pos = `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0)`; return app ? <Button key={app.id} variant="ghost" onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("orbit", app); }} className="launcher-app-node" style={{ width: size, height: size, transform: `${pos} scale(${(.8 + depth * .2).toFixed(3)})`, opacity: Number((base * (.6 + depth * .4)).toFixed(3)), zIndex: Math.round(depth * 20) + ring * 30 }}><AppIcon app={app} size={size * .52} pack={preferences.iconPack} />{preferences.showLabels && ring === 0 && <span className="launcher-app-label">{app.label}</span>}</Button> : <Button key={`empty-${ring}-${index}`} variant="ghost" size="icon" onPointerDown={(event) => event.stopPropagation()} onClick={() => openPicker(index, ring)} disabled={preferences.appLocked} aria-label={`Add app to ring ${ring + 1} slot ${index + 1}`} className="launcher-empty-slot" style={{ width: size * .7, height: size * .7, transform: `${pos} scale(${(.7 + depth * .25).toFixed(3)})`, opacity: Number((.3 + depth * .5).toFixed(3)), zIndex: Math.round(depth * 20) + ring * 30 }}><Plus /></Button>; }))}
+            {!orbitSlots.length && <div className="launcher-empty">No apps found</div>}
           </div>
-          <Button variant="ghost" size="icon" className="launcher-orbit-add" onClick={() => openPicker(orbitSlots.findIndex((item) => item === null))} disabled={apps.length >= MAX_APPS || preferences.appLocked} aria-label="Add orbit app"><Plus /></Button>
-          <span className="launcher-orbit-count">{apps.length}/{MAX_APPS}</span>
+          <Button variant="ghost" size="icon" className="launcher-orbit-add" onClick={() => { const [i, r] = firstFree(); openPicker(i, r); }} disabled={apps.length >= ORBIT_MAX || preferences.appLocked} aria-label="Add orbit app"><Plus /></Button>
+          <span className="launcher-orbit-count">{apps.length}/{ORBIT_MAX}</span>
         </section>
         <div ref={alphabetRef} className="launcher-alphabet" onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); pickLetter(event.clientY); }} onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) pickLetter(event.clientY); }} aria-label="A to Z quick jump">{ALPHABET.map((letter) => <button key={letter} type="button" className={cn("launcher-letter", activeLetter === letter && "launcher-letter--active")} onClick={() => jumpToLetter(letter)}>{letter}</button>)}</div>
       </main>
@@ -266,7 +276,7 @@ export function LauncherHome() {
       <Button className="launcher-drawer-handle" variant="ghost" onClick={() => setDrawerOpen(true)}><ChevronUp className="h-5 w-5" /><span>Swipe up</span></Button>
       <div className={cn("launcher-drawer-backdrop", drawerOpen && "launcher-drawer-backdrop--open")} onClick={() => setDrawerOpen(false)} />
       <aside className={cn("launcher-drawer", drawerOpen && "launcher-drawer--open")}><div className="launcher-drawer-grip" /><div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pb-4"><div><h2 className="text-lg font-semibold">Quick drawer</h2><p className="text-xs text-muted-foreground">Two independent rails · 40 + 40 shortcuts</p></div><Button variant="ghost" size="icon" onClick={() => setDrawerOpen(false)}><X /></Button></div>
-        <div className="launcher-tools px-5"><Button onClick={() => openPicker(orbitSlots.findIndex((item) => item === null))} disabled={apps.length >= MAX_APPS || preferences.appLocked}><Plus /> Orbit app</Button><Button onClick={() => openEditor("edge")} disabled={edgeApps.length >= MAX_APPS || preferences.appLocked}><Plus /> Edge app</Button><Button variant="outline" onClick={() => void installLauncher()}><Download /> {installed ? "Installed" : "Install Orbit"}</Button><Button variant="outline" onClick={() => setWallpaperOpen(true)}><ImagePlus /> Wallpaper</Button><Button variant="outline" onClick={() => setPreferences((value) => ({ ...value, darkMode: !value.darkMode }))}>{preferences.darkMode ? <Sun /> : <Moon />} Appearance</Button><Button variant={preferences.appLocked ? "default" : "outline"} onClick={() => setPreferences((value) => ({ ...value, appLocked: !value.appLocked }))}><Lock /> {preferences.appLocked ? "Unlock" : "App lock"}</Button><Button variant="outline" asChild><Link to="/settings"><Sparkles /> Icon packs</Link></Button></div>
+        <div className="launcher-tools px-5"><Button onClick={() => { const [i, r] = firstFree(); openPicker(i, r); }} disabled={apps.length >= ORBIT_MAX || preferences.appLocked}><Plus /> Orbit app</Button><Button onClick={() => openEditor("edge")} disabled={edgeApps.length >= EDGE_MAX || preferences.appLocked}><Plus /> Edge app</Button><Button variant="outline" onClick={() => void installLauncher()}><Download /> {installed ? "Installed" : "Install Orbit"}</Button><Button variant="outline" onClick={() => setWallpaperOpen(true)}><ImagePlus /> Wallpaper</Button><Button variant="outline" onClick={() => setPreferences((value) => ({ ...value, darkMode: !value.darkMode }))}>{preferences.darkMode ? <Sun /> : <Moon />} Appearance</Button><Button variant={preferences.appLocked ? "default" : "outline"} onClick={() => setPreferences((value) => ({ ...value, appLocked: !value.appLocked }))}><Lock /> {preferences.appLocked ? "Unlock" : "App lock"}</Button><Button variant="outline" asChild><Link to="/settings"><Sparkles /> Icon packs</Link></Button></div>
         <div className="launcher-control-panel mx-5 mt-4"><label><Sun className="h-4 w-4" /><span>Brightness</span><input type="range" min="40" max="100" step="10" value={preferences.brightness} onChange={(event) => setPreferences((value) => ({ ...value, brightness: Number(event.target.value) }))} /><b>{preferences.brightness}%</b></label><label>{preferences.volume ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}<span>Sound</span><input type="range" min="0" max="100" step="10" value={preferences.volume} onChange={(event) => setPreferences((value) => ({ ...value, volume: Number(event.target.value) }))} /><b>{preferences.volume}%</b></label><label><Settings2 className="h-4 w-4" /><span>Orbit size</span><input type="range" min="46" max="82" step="2" value={preferences.iconSize} onChange={(event) => setPreferences((value) => ({ ...value, iconSize: Number(event.target.value) }))} /><b>{preferences.iconSize}px</b></label></div>
         <div className="launcher-premium mx-5 mt-4"><Crown /><div><b>Dual-scroll Lifetime</b><small>80 slots · premium packs · full customization</small></div><strong>₹499</strong></div>
         <ManageList title="Orbit apps" rail="orbit" apps={apps} locked={preferences.appLocked} onMove={moveApp} onEdit={openEditor} onRemove={(rail, id) => saveRail(rail, apps.filter((app) => app.id !== id))} />
@@ -274,14 +284,14 @@ export function LauncherHome() {
       </aside>
 
       <WallpaperDialog open={wallpaperOpen} onOpenChange={setWallpaperOpen} activeId={customWallpaper ? "custom" : wallpaper.id} onChoose={(choice) => { setWallpaper(choice); setCustomWallpaper(""); localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ id: choice.id })); }} onUrl={(url) => { if (!/^https:\/\//i.test(url)) { toast.error("Valid https image URL daalo"); return; } setCustomWallpaper(url); localStorage.setItem(WALLPAPER_KEY, JSON.stringify({ custom: url })); }} onUpload={uploadWallpaper} />
-      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}><DialogContent className="neon-panel launcher-picker max-w-md"><DialogHeader><DialogTitle>Choose app · Slot {(draft.slot ?? 0) + 1}</DialogTitle></DialogHeader><div className="launcher-picker-search"><Search /><Input value={pickerSearch} onChange={(event) => setPickerSearch(event.target.value)} placeholder="Search built-in apps" autoFocus /></div><div className="launcher-picker-grid">{pickerApps.map((app) => <Button key={app.id} variant="ghost" className="launcher-picker-app" onClick={() => choosePickerApp(app)}><AppIcon app={app} size={42} pack={preferences.iconPack} /><span>{app.label}</span></Button>)}</div><Button variant="outline" onClick={createCustomFromPicker}><Plus /> Custom app, name or link</Button></DialogContent></Dialog>
+      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}><DialogContent className="neon-panel launcher-picker max-w-md"><DialogHeader><DialogTitle>Choose app · Ring {(draft.ring ?? 0) + 1} · Slot {(draft.slot ?? 0) + 1}</DialogTitle></DialogHeader><div className="launcher-picker-search"><Search /><Input value={pickerSearch} onChange={(event) => setPickerSearch(event.target.value)} placeholder="Search built-in apps" autoFocus /></div><div className="launcher-picker-grid">{pickerApps.map((app) => <Button key={app.id} variant="ghost" className="launcher-picker-app" onClick={() => choosePickerApp(app)}><AppIcon app={app} size={42} pack={preferences.iconPack} /><span>{app.label}</span></Button>)}</div><Button variant="outline" onClick={createCustomFromPicker}><Plus /> Custom app, name or link</Button></DialogContent></Dialog>
       <Dialog open={editorOpen} onOpenChange={setEditorOpen}><DialogContent className="neon-panel max-w-sm"><DialogHeader><DialogTitle>{draft.id ? "Customize shortcut" : `Add to ${draft.rail} rail`}</DialogTitle></DialogHeader><div className="launcher-icon-editor"><div className="launcher-icon-preview">{draft.iconImage ? <img src={draft.iconImage} alt="Custom app icon" /> : draft.emoji}</div><div className="grid gap-2"><Input value={draft.emoji} onChange={(event) => setDraft((value) => ({ ...value, emoji: event.target.value.slice(0, 3), iconImage: undefined }))} aria-label="App icon emoji" placeholder="Emoji" /><label className="launcher-upload launcher-upload--small"><Upload className="h-4 w-4" /> Own icon<input type="file" accept="image/*" className="sr-only" onChange={(event) => uploadIcon(event.target.files?.[0])} /></label></div></div><Input value={draft.label} onChange={(event) => setDraft((value) => ({ ...value, label: event.target.value }))} placeholder="App name" /><Input value={draft.to} onChange={(event) => setDraft((value) => ({ ...value, to: event.target.value }))} placeholder="Website URL or app path" /><Button onClick={saveDraft}>{draft.id ? "Save changes" : "Add to launcher"}</Button></DialogContent></Dialog>
     </div>
   );
 }
 
 function ManageList({ title, rail, apps, locked, onMove, onEdit, onRemove }: { title: string; rail: LauncherRail; apps: WheelApp[]; locked: boolean; onMove: (rail: LauncherRail, index: number, direction: -1 | 1) => void; onEdit: (rail: LauncherRail, app?: WheelApp) => void; onRemove: (rail: LauncherRail, id: string) => void }) {
-  return <details className="launcher-manage-group mx-5 mt-4"><summary>{title}<span>{apps.length}/{MAX_APPS}</span></summary><div className="mt-2 max-h-[30vh] space-y-2 overflow-y-auto">{apps.map((app, index) => <div key={app.id} className="launcher-manage-row"><GripVertical className="h-4 w-4 text-muted-foreground" /><span className="text-xl">{app.iconImage ? <img src={app.iconImage} alt="" className="h-7 w-7 rounded-md object-cover" /> : app.emoji}</span><span className="min-w-0 flex-1 truncate text-sm font-medium">{app.label}</span><Button variant="ghost" size="icon" onClick={() => onMove(rail, index, -1)} disabled={locked || index === 0}><ArrowUp /></Button><Button variant="ghost" size="icon" onClick={() => onMove(rail, index, 1)} disabled={locked || index === apps.length - 1}><ArrowDown /></Button><Button variant="ghost" size="icon" onClick={() => onEdit(rail, app)} disabled={locked}><Pencil /></Button><Button variant="ghost" size="icon" onClick={() => onRemove(rail, app.id)} disabled={locked}><Trash2 className="text-destructive" /></Button></div>)}</div></details>;
+  return <details className="launcher-manage-group mx-5 mt-4"><summary>{title}<span>{apps.length}/{ORBIT_MAX}</span></summary><div className="mt-2 max-h-[30vh] space-y-2 overflow-y-auto">{apps.map((app, index) => <div key={app.id} className="launcher-manage-row"><GripVertical className="h-4 w-4 text-muted-foreground" /><span className="text-xl">{app.iconImage ? <img src={app.iconImage} alt="" className="h-7 w-7 rounded-md object-cover" /> : app.emoji}</span><span className="min-w-0 flex-1 truncate text-sm font-medium">{app.label}</span><Button variant="ghost" size="icon" onClick={() => onMove(rail, index, -1)} disabled={locked || index === 0}><ArrowUp /></Button><Button variant="ghost" size="icon" onClick={() => onMove(rail, index, 1)} disabled={locked || index === apps.length - 1}><ArrowDown /></Button><Button variant="ghost" size="icon" onClick={() => onEdit(rail, app)} disabled={locked}><Pencil /></Button><Button variant="ghost" size="icon" onClick={() => onRemove(rail, app.id)} disabled={locked}><Trash2 className="text-destructive" /></Button></div>)}</div></details>;
 }
 
 function WallpaperDialog({ open, onOpenChange, activeId, onChoose, onUrl, onUpload }: { open: boolean; onOpenChange: (open: boolean) => void; activeId: string; onChoose: (choice: Wallpaper) => void; onUrl: (url: string) => void; onUpload: (file?: File) => void }) {
