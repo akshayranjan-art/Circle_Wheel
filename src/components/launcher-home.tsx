@@ -75,6 +75,9 @@ export function LauncherHome() {
   const [installed, setInstalled] = useState(false);
   const arcRef = useRef<HTMLDivElement | null>(null);
   const alphabetRef = useRef<HTMLDivElement | null>(null);
+  const edgeScrollRef = useRef<HTMLDivElement | null>(null);
+  const edgeLettersRef = useRef<HTMLDivElement | null>(null);
+  const [edgeLetter, setEdgeLetter] = useState("");
   const rotationRef = useRef(0);
   const velocityRef = useRef(0);
   const pointerRef = useRef<{ angle: number; time: number } | null>(null);
