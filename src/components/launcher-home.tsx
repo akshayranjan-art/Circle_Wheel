@@ -51,7 +51,7 @@ function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: Launc
 
 const ROTATION_KEY = "orbit-launcher-rotation-v1";
 /** Outer ring spins with the finger, middle ring counter-rotates, inner ring spins faster. */
-const RINGS = [{ radius: 200, dir: 1, scale: 1 }, { radius: 132, dir: -1.2, scale: .78 }, { radius: 62, dir: 1.6, scale: .74 }];
+const RINGS = [{ radius: 238, dir: 1, scale: .82 }, { radius: 138, dir: -1.2, scale: .78 }, { radius: 64, dir: 1.6, scale: .74 }];
 
 export function LauncherHome() {
   const navigate = useNavigate();
@@ -159,7 +159,7 @@ export function LauncherHome() {
   useEffect(() => {
     const element = arcRef.current;
     if (!element) return;
-    const onWheel = (event: WheelEvent) => { event.preventDefault(); stop(); velocityRef.current = Math.max(-9, Math.min(9, event.deltaY * .035)); rafRef.current = requestAnimationFrame(inertia); };
+    const onWheel = (event: WheelEvent) => { event.preventDefault(); stop(); velocityRef.current = Math.max(-7.5, Math.min(7.5, event.deltaY * .028)); rafRef.current = requestAnimationFrame(inertia); };
     element.addEventListener("wheel", onWheel, { passive: false });
     return () => element.removeEventListener("wheel", onWheel);
   }, [inertia, stop]);
