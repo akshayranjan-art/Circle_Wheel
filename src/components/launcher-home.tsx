@@ -138,6 +138,40 @@ export function LauncherHome() {
   }, [search]);
   const visibleApps = useMemo(() => filterApps(apps), [apps, filterApps]);
   const visibleEdgeApps = useMemo(() => filterApps(edgeApps), [edgeApps, filterApps]);
+  /** Side rail loops 360°: the list renders 3x and scroll stays centered on the middle copy. */
+  const edgeLoopApps = useMemo(() => [...visibleEdgeApps, ...visibleEdgeApps, ...visibleEdgeApps], [visibleEdgeApps]);
+  const edgeLetters = useMemo(() => new Set(visibleEdgeApps.map((app) => app.label.trim().charAt(0).toUpperCase())), [visibleEdgeApps]);
+
+  const centerEdgeLoop = useCallback(() => {
+    const el = edgeScrollRef.current;
+    if (!el) return;
+    const third = el.scrollHeight / 3;
+    if (el.scrollTop < third * .45) el.scrollTop += third;
+    else if (el.scrollTop > third * 1.55) el.scrollTop -= third;
+  }, []);
+
+  useEffect(() => {
+    const el = edgeScrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight / 3;
+  }, [visibleEdgeApps.length, preferences.edgeVisible]);
+
+  const jumpEdgeLetter = useCallback((letter: string) => {
+    setEdgeLetter(letter);
+    const el = edgeScrollRef.current;
+    if (!el) return;
+    const index = visibleEdgeApps.findIndex((app) => app.label.trim().toUpperCase().startsWith(letter));
+    if (index < 0) { toast.info(`${letter} se koi app nahi hai`); return; }
+    const card = el.querySelectorAll<HTMLElement>(".launcher-edge-card")[visibleEdgeApps.length + index];
+    if (card) el.scrollTo({ top: card.offsetTop - el.clientHeight / 2 + card.offsetHeight / 2, behavior: "smooth" });
+  }, [visibleEdgeApps]);
+
+  const pickEdgeLetter = useCallback((clientY: number) => {
+    const el = edgeLettersRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const index = Math.min(25, Math.max(0, Math.floor((clientY - rect.top) / rect.height * 26)));
+    jumpEdgeLetter(ALPHABET[index] ?? "A");
+  }, [jumpEdgeLetter]);
   const ringSlots = useMemo<(WheelApp | null)[][]>(() => {
     if (search.trim()) return [visibleApps, [], []];
     const rings = RING_SIZES.map((size) => Array.from({ length: size }, () => null as WheelApp | null));
