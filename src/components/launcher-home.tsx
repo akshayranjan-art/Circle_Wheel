@@ -75,6 +75,9 @@ export function LauncherHome() {
   const [installed, setInstalled] = useState(false);
   const arcRef = useRef<HTMLDivElement | null>(null);
   const alphabetRef = useRef<HTMLDivElement | null>(null);
+  const edgeScrollRef = useRef<HTMLDivElement | null>(null);
+  const edgeLettersRef = useRef<HTMLDivElement | null>(null);
+  const [edgeLetter, setEdgeLetter] = useState("");
   const rotationRef = useRef(0);
   const velocityRef = useRef(0);
   const pointerRef = useRef<{ angle: number; time: number } | null>(null);
@@ -135,6 +138,40 @@ export function LauncherHome() {
   }, [search]);
   const visibleApps = useMemo(() => filterApps(apps), [apps, filterApps]);
   const visibleEdgeApps = useMemo(() => filterApps(edgeApps), [edgeApps, filterApps]);
+  /** Side rail loops 360°: the list renders 3x and scroll stays centered on the middle copy. */
+  const edgeLoopApps = useMemo(() => [...visibleEdgeApps, ...visibleEdgeApps, ...visibleEdgeApps], [visibleEdgeApps]);
+  const edgeLetters = useMemo(() => new Set(visibleEdgeApps.map((app) => app.label.trim().charAt(0).toUpperCase())), [visibleEdgeApps]);
+
+  const centerEdgeLoop = useCallback(() => {
+    const el = edgeScrollRef.current;
+    if (!el) return;
+    const third = el.scrollHeight / 3;
+    if (el.scrollTop < third * .45) el.scrollTop += third;
+    else if (el.scrollTop > third * 1.55) el.scrollTop -= third;
+  }, []);
+
+  useEffect(() => {
+    const el = edgeScrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight / 3;
+  }, [visibleEdgeApps.length, preferences.edgeVisible]);
+
+  const jumpEdgeLetter = useCallback((letter: string) => {
+    setEdgeLetter(letter);
+    const el = edgeScrollRef.current;
+    if (!el) return;
+    const index = visibleEdgeApps.findIndex((app) => app.label.trim().toUpperCase().startsWith(letter));
+    if (index < 0) { toast.info(`${letter} se koi app nahi hai`); return; }
+    const card = el.querySelectorAll<HTMLElement>(".launcher-edge-card")[visibleEdgeApps.length + index];
+    if (card) el.scrollTo({ top: card.offsetTop - el.clientHeight / 2 + card.offsetHeight / 2, behavior: "smooth" });
+  }, [visibleEdgeApps]);
+
+  const pickEdgeLetter = useCallback((clientY: number) => {
+    const el = edgeLettersRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const index = Math.min(25, Math.max(0, Math.floor((clientY - rect.top) / rect.height * 26)));
+    jumpEdgeLetter(ALPHABET[index] ?? "A");
+  }, [jumpEdgeLetter]);
   const ringSlots = useMemo<(WheelApp | null)[][]>(() => {
     if (search.trim()) return [visibleApps, [], []];
     const rings = RING_SIZES.map((size) => Array.from({ length: size }, () => null as WheelApp | null));
@@ -253,12 +290,13 @@ export function LauncherHome() {
 
       <main className="relative z-10 min-h-screen overflow-hidden">
         <aside className="launcher-edge-rail" aria-label="Independent edge apps">
-          <div className="launcher-edge-scroll" style={{ ["--edge-count" as string]: preferences.edgeVisible }}>
+          <div ref={edgeScrollRef} className="launcher-edge-scroll" style={{ ["--edge-count" as string]: preferences.edgeVisible }} onScroll={centerEdgeLoop}>
             <Button variant="ghost" className="launcher-edge-add" onClick={() => openEditor("edge")} disabled={edgeApps.length >= EDGE_MAX || preferences.appLocked} aria-label="Add edge app"><Plus /></Button>
-            {visibleEdgeApps.map((app) => <Button key={app.id} variant="ghost" className="launcher-edge-card" style={{ height: "calc((100cqh - 2.9rem) / var(--edge-count) - .45rem)", minHeight: 0 }} onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("edge", app); }}><AppIcon app={app} size={Math.min(preferences.leftIconSize * .7, 300 / preferences.edgeVisible)} pack={preferences.iconPack} />{preferences.showLabels && preferences.edgeVisible <= 6 && <small>{app.label}</small>}</Button>)}
+            {edgeLoopApps.map((app, copyIndex) => <Button key={`${app.id}-${copyIndex}`} variant="ghost" className="launcher-edge-card" style={{ height: "calc((100cqh - 2.9rem) / var(--edge-count) - .45rem)", minHeight: 0 }} onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("edge", app); }}><AppIcon app={app} size={Math.min(preferences.leftIconSize * .7, 300 / preferences.edgeVisible)} pack={preferences.iconPack} />{preferences.showLabels && preferences.edgeVisible <= 6 && <small>{app.label}</small>}</Button>)}
           </div>
           <span className="launcher-edge-count">{edgeApps.length}/{EDGE_MAX}</span>
         </aside>
+        <div ref={edgeLettersRef} className="launcher-edge-letters" onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); pickEdgeLetter(event.clientY); }} onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) pickEdgeLetter(event.clientY); }} aria-label="Edge apps A to Z quick jump">{ALPHABET.map((letter) => <button key={letter} type="button" className={cn("launcher-letter", edgeLetter === letter && "launcher-letter--active", !edgeLetters.has(letter) && "launcher-letter--empty")} onClick={() => jumpEdgeLetter(letter)}>{letter}</button>)}</div>
 
         <section className="launcher-arc-zone" aria-label="Scrollable circular application launcher">
           <div className="launcher-orbit-rail launcher-orbit-rail--outer" /><div className="launcher-orbit-rail launcher-orbit-rail--middle" /><div className="launcher-orbit-rail launcher-orbit-rail--inner" />
