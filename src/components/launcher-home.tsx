@@ -51,7 +51,7 @@ function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: Launc
 
 const ROTATION_KEY = "orbit-launcher-rotation-v1";
 /** Outer ring spins with the finger, middle ring counter-rotates, inner ring spins faster. */
-const RINGS = [{ radius: 200, dir: 1, scale: 1 }, { radius: 132, dir: -1.2, scale: .78 }, { radius: 62, dir: 1.6, scale: .74 }];
+const RINGS = [{ radius: 258, dir: 1, scale: .78 }, { radius: 138, dir: -1.2, scale: .78 }, { radius: 64, dir: 1.6, scale: .74 }];
 
 export function LauncherHome() {
   const navigate = useNavigate();
@@ -159,7 +159,7 @@ export function LauncherHome() {
   useEffect(() => {
     const element = arcRef.current;
     if (!element) return;
-    const onWheel = (event: WheelEvent) => { event.preventDefault(); stop(); velocityRef.current = Math.max(-9, Math.min(9, event.deltaY * .035)); rafRef.current = requestAnimationFrame(inertia); };
+    const onWheel = (event: WheelEvent) => { event.preventDefault(); stop(); velocityRef.current = Math.max(-7.5, Math.min(7.5, event.deltaY * .028)); rafRef.current = requestAnimationFrame(inertia); };
     element.addEventListener("wheel", onWheel, { passive: false });
     return () => element.removeEventListener("wheel", onWheel);
   }, [inertia, stop]);
@@ -262,7 +262,7 @@ export function LauncherHome() {
 
         <section className="launcher-arc-zone" aria-label="Scrollable circular application launcher">
           <div className="launcher-orbit-rail launcher-orbit-rail--outer" /><div className="launcher-orbit-rail launcher-orbit-rail--middle" /><div className="launcher-orbit-rail launcher-orbit-rail--inner" />
-          <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { angle: pointerAngle(event.clientX, event.clientY), time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const angle = pointerAngle(event.clientX, event.clientY); let delta = angle - previous.angle; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 16; pointerRef.current = { angle, time: now }; apply(rotationRef.current + delta); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
+          <div ref={arcRef} className="launcher-arc-surface" onPointerDown={(event) => { stop(); movedRef.current = 0; pointerRef.current = { angle: pointerAngle(event.clientX, event.clientY), time: performance.now() }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const previous = pointerRef.current; if (!previous) return; const now = performance.now(); const angle = pointerAngle(event.clientX, event.clientY); let delta = angle - previous.angle; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; movedRef.current += Math.abs(delta); velocityRef.current = delta / Math.max(1, now - previous.time) * 13; pointerRef.current = { angle, time: now }; apply(rotationRef.current + delta); }} onPointerUp={() => { pointerRef.current = null; rafRef.current = requestAnimationFrame(inertia); }} onPointerCancel={() => { pointerRef.current = null; }}>
             {RINGS.map(({ radius, dir, scale }, ring) => (ringSlots[ring] ?? []).map((app, index, list) => { const angle = index * 360 / list.length + rotation * dir + 180; const radians = angle * Math.PI / 180; const x = Math.cos(radians) * radius; const y = Math.sin(radians) * radius; const depth = (Math.cos(radians) + 1) / 2; const size = preferences.iconSize * scale; const base = preferences.iconOpacity / 100; const pos = `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0)`; return app ? <Button key={app.id} variant="ghost" onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("orbit", app); }} className="launcher-app-node" style={{ width: size, height: size, transform: `${pos} scale(${(.8 + depth * .2).toFixed(3)})`, opacity: Number((base * (.6 + depth * .4)).toFixed(3)), zIndex: Math.round(depth * 20) + ring * 30 }}><AppIcon app={app} size={size * .52} pack={preferences.iconPack} />{preferences.showLabels && ring === 0 && <span className="launcher-app-label">{app.label}</span>}</Button> : <Button key={`empty-${ring}-${index}`} variant="ghost" size="icon" onPointerDown={(event) => event.stopPropagation()} onClick={() => openPicker(index, ring)} disabled={preferences.appLocked} aria-label={`Add app to ring ${ring + 1} slot ${index + 1}`} className="launcher-empty-slot" style={{ width: size * .7, height: size * .7, transform: `${pos} scale(${(.7 + depth * .25).toFixed(3)})`, opacity: Number((.3 + depth * .5).toFixed(3)), zIndex: Math.round(depth * 20) + ring * 30 }}><Plus /></Button>; }))}
             {!orbitSlots.length && <div className="launcher-empty">No apps found</div>}
           </div>
