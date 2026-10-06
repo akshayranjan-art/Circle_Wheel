@@ -292,7 +292,7 @@ export function LauncherHome() {
         <aside className="launcher-edge-rail" aria-label="Independent edge apps">
           <div ref={edgeScrollRef} className="launcher-edge-scroll" style={{ ["--edge-count" as string]: preferences.edgeVisible }} onScroll={centerEdgeLoop}>
             <Button variant="ghost" className="launcher-edge-add" onClick={() => openEditor("edge")} disabled={edgeApps.length >= EDGE_MAX || preferences.appLocked} aria-label="Add edge app"><Plus /></Button>
-            {edgeLoopApps.map((app, copyIndex) => <Button key={`${app.id}-${copyIndex}`} variant="ghost" className="launcher-edge-card" style={{ height: "calc((100cqh - 2.9rem) / var(--edge-count) - .45rem)", minHeight: 0 }} onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("edge", app); }}><AppIcon app={app} size={Math.min(preferences.leftIconSize * .7, 300 / preferences.edgeVisible)} pack={preferences.iconPack} />{preferences.showLabels && preferences.edgeVisible <= 6 && <small>{app.label}</small>}</Button>)}
+            {edgeLoopApps.map((app, copyIndex) => <Button key={`${app.id}-${copyIndex}`} variant="ghost" className="launcher-edge-card" style={{ height: "calc((100cqh - 2.9rem) / var(--edge-count) - .45rem)", minHeight: 0 }} onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("edge", app); }}><AppIcon app={app} size={Math.min(28, preferences.leftIconSize * .55, 240 / preferences.edgeVisible)} pack={preferences.iconPack} />{preferences.showLabels && preferences.edgeVisible <= 6 && <small>{app.label}</small>}</Button>)}
           </div>
           <span className="launcher-edge-count">{edgeApps.length}/{EDGE_MAX}</span>
         </aside>
