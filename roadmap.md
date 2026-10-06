@@ -1,5 +1,9 @@
 # Roadmap
 
+## Left rail clearance
+
+- [x] Reduce left rail width and icons, and reserve a gap from rotating orbit shortcuts at narrow screen widths
+
 ## Orbit phone launcher
 
 - [x] Large right-side circular orbit with three glowing rails and touch/mouse inertia
