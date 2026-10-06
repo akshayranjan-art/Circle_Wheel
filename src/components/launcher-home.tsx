@@ -205,7 +205,8 @@ export function LauncherHome() {
     const pending: WheelApp[] = [];
     apps.forEach((app) => {
       const ring = typeof app.ring === "number" && rings[app.ring] ? app.ring : 0;
-      const slots = rings[ring]!;
+      const slots = rings[ring];
+      if (!slots) return;
       const preferred = typeof app.slot === "number" && app.slot >= 0 && app.slot < slots.length && !slots[app.slot] ? app.slot : slots.findIndex((item) => item === null);
       if (preferred >= 0) slots[preferred] = app; else pending.push(app);
     });
