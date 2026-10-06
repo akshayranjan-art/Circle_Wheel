@@ -1,4 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import wallpaper0 from "@/assets/wallpaper-aurora.jpg.asset.json";
+import wallpaper1 from "@/assets/wallpaper-mountains.jpg.asset.json";
+import wallpaper2 from "@/assets/wallpaper-forest.jpg.asset.json";
+import wallpaper3 from "@/assets/wallpaper-ocean.jpg.asset.json";
+import wallpaper4 from "@/assets/wallpaper-moon.jpg.asset.json";
+import wallpaper5 from "@/assets/wallpaper-desert.jpg.asset.json";
+import wallpaper6 from "@/assets/wallpaper-waterfall.jpg.asset.json";
+import wallpaper7 from "@/assets/wallpaper-flowers.jpg.asset.json";
+import wallpaper8 from "@/assets/wallpaper-city-lights.jpg.asset.json";
+import wallpaper9 from "@/assets/wallpaper-cats.jpg.asset.json";
+import wallpaper10 from "@/assets/wallpaper-birds.jpg.asset.json";
+import wallpaper11 from "@/assets/wallpaper-graphic.jpg.asset.json";
 import { launchNative } from "@/lib/native-launch";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Calculator, CalendarDays, Camera, ChevronUp, Clock3, CloudSun, ContactRound, Crown, Download, Facebook, FolderOpen, GalleryHorizontal, Globe2, GripVertical, Home, ImagePlus, Instagram, Languages, Lock, Mail, Map, MessageCircle, Moon, Music2, Pencil, Phone, Play, Plus, Search, Settings2, ShoppingBag, Sparkles, StickyNote, Sun, Trash2, Upload, Users, Volume2, VolumeX, X } from "lucide-react";
@@ -24,6 +36,18 @@ const WALLPAPERS = [
   { id: "city", name: "Neon City", src: cityWallpaper },
   { id: "orbit", name: "Deep Orbit", src: orbitWallpaper },
   { id: "metal", name: "Liquid Metal", src: metalWallpaper },
+  { id: "aurora", name: "Aurora", src: wallpaper0.url },
+  { id: "mountains", name: "Mountains", src: wallpaper1.url },
+  { id: "forest", name: "Forest", src: wallpaper2.url },
+  { id: "ocean", name: "Ocean", src: wallpaper3.url },
+  { id: "moon", name: "Moon", src: wallpaper4.url },
+  { id: "desert", name: "Desert", src: wallpaper5.url },
+  { id: "waterfall", name: "Waterfall", src: wallpaper6.url },
+  { id: "flowers", name: "Flowers", src: wallpaper7.url },
+  { id: "city-lights", name: "City Lights", src: wallpaper8.url },
+  { id: "cats", name: "Cats", src: wallpaper9.url },
+  { id: "birds", name: "Birds", src: wallpaper10.url },
+  { id: "graphic", name: "Graphic", src: wallpaper11.url },
 ];
 type Wallpaper = (typeof WALLPAPERS)[number];
 type EditDraft = { id?: string; label: string; to: string; emoji: string; iconImage: string | undefined; rail: LauncherRail; slot?: number; ring?: number };
@@ -47,7 +71,7 @@ function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: Launc
     translate: Languages, yt: Play, wa: MessageCircle, ig: Instagram, sp: Music2, play: ShoppingBag,
     fb: Facebook, x: X, gm: Mail, map: Map,
   } as Record<string, typeof Sparkles>)[key] ?? Sparkles;
-  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
+  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} data-tone={key === "wa" || key === "sp" || key === "phone" ? "emerald" : key === "yt" || key === "ig" ? "ruby" : key === "music" || key === "gallery" ? "orchid" : "azure"} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
 }
 
 const ROTATION_KEY = "orbit-launcher-rotation-v1";
@@ -70,6 +94,7 @@ export function LauncherHome() {
   const [wallpaper, setWallpaper] = useState<Wallpaper>(WALLPAPERS[0] ?? { id: "city", name: "Neon City", src: cityWallpaper });
   const [customWallpaper, setCustomWallpaper] = useState("");
   const [preferences, setPreferences] = useState<LauncherPreferences>(DEFAULT_LAUNCHER_PREFERENCES);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [time, setTime] = useState("");
   const [online, setOnline] = useState(true);
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
@@ -101,6 +126,7 @@ export function LauncherHome() {
     setApps(loadLauncherApps());
     setEdgeApps(loadLauncherEdgeApps());
     setPreferences(loadLauncherPreferences());
+    setPreferencesLoaded(true);
     try {
       const saved = JSON.parse(localStorage.getItem(WALLPAPER_KEY) ?? "null") as { id?: string; custom?: string } | null;
       const preset = WALLPAPERS.find((item) => item.id === saved?.id);
@@ -117,7 +143,7 @@ export function LauncherHome() {
     return () => { window.removeEventListener("beforeinstallprompt", capture); window.removeEventListener("appinstalled", markInstalled); };
   }, []);
 
-  useEffect(() => { document.documentElement.classList.toggle("dark", preferences.darkMode); saveLauncherPreferences(preferences); }, [preferences]);
+  useEffect(() => { if (!preferencesLoaded) return; document.documentElement.classList.toggle("dark", preferences.darkMode); saveLauncherPreferences(preferences); }, [preferences, preferencesLoaded]);
   useEffect(() => { soundFX.setEnabled(preferences.volume > 0); }, [preferences.volume]);
   useEffect(() => {
     const updateTime = () => setTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
@@ -179,7 +205,8 @@ export function LauncherHome() {
     const pending: WheelApp[] = [];
     apps.forEach((app) => {
       const ring = typeof app.ring === "number" && rings[app.ring] ? app.ring : 0;
-      const slots = rings[ring]!;
+      const slots = rings[ring];
+      if (!slots) return;
       const preferred = typeof app.slot === "number" && app.slot >= 0 && app.slot < slots.length && !slots[app.slot] ? app.slot : slots.findIndex((item) => item === null);
       if (preferred >= 0) slots[preferred] = app; else pending.push(app);
     });
@@ -335,5 +362,5 @@ function ManageList({ title, rail, apps, locked, onMove, onEdit, onRemove }: { t
 
 function WallpaperDialog({ open, onOpenChange, activeId, onChoose, onUrl, onUpload }: { open: boolean; onOpenChange: (open: boolean) => void; activeId: string; onChoose: (choice: Wallpaper) => void; onUrl: (url: string) => void; onUpload: (file?: File) => void }) {
   const [url, setUrl] = useState("");
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="neon-panel max-w-lg"><DialogHeader><DialogTitle>Wallpaper studio</DialogTitle></DialogHeader><div className="grid grid-cols-3 gap-2">{WALLPAPERS.map((choice) => <button key={choice.id} type="button" onClick={() => onChoose(choice)} className={cn("launcher-wallpaper-option", activeId === choice.id && "launcher-wallpaper-option--active")}><img src={choice.src} alt="" loading="lazy" width={1080} height={1920} /><span>{choice.name}</span></button>)}</div><label className="launcher-upload"><ImagePlus className="h-5 w-5" /><span>Upload from phone</span><input type="file" accept="image/*" className="sr-only" onChange={(event) => onUpload(event.target.files?.[0])} /></label><div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"><Input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://... wallpaper URL" /><Button onClick={() => onUrl(url)}>Set URL</Button></div></DialogContent></Dialog>;
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="neon-panel max-w-lg max-h-[90dvh] overflow-y-auto"><DialogHeader><DialogTitle>Wallpaper studio · 15</DialogTitle></DialogHeader><div className="grid max-h-[52dvh] grid-cols-3 gap-2 overflow-y-auto">{WALLPAPERS.map((choice) => <Button variant="ghost" key={choice.id} aria-label={`Set ${choice.name} wallpaper`} onClick={() => onChoose(choice)} className={cn("launcher-wallpaper-option h-auto p-0", activeId === choice.id && "launcher-wallpaper-option--active")}><img src={choice.src} alt="" loading="lazy" width={1080} height={1920} /><span>{choice.name}</span></Button>)}</div><label className="launcher-upload"><ImagePlus className="h-5 w-5" /><span>Upload from phone</span><input type="file" accept="image/*" className="sr-only" onChange={(event) => onUpload(event.target.files?.[0])} /></label><div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"><Input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://... wallpaper URL" /><Button onClick={() => onUrl(url)}>Set URL</Button></div></DialogContent></Dialog>;
 }
