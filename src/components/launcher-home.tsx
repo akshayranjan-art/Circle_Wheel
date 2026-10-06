@@ -37,11 +37,12 @@ function normalizedTarget(value: string) {
 }
 
 function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: LauncherPreferences["iconPack"] }) {
-  const key = app.id.replace(/^edge-/, "").replace(/^p-/, "");
+  const key = app.id.replace(/^(edge-|orbit-)/, "").replace(/-\d{10,}$/, "").replace(/^p-/, "");
   const Icon = ({
     home: Home, phone: Phone, camera: Camera, messages: MessageCircle, chrome: Globe2,
     calculator: Calculator, clock: Clock3, gallery: GalleryHorizontal, settings: Settings2,
     contacts: ContactRound, calendar: CalendarDays, drive: FolderOpen, notes: StickyNote,
+    "system-settings": Settings2, "file-manager": FolderOpen,
     weather: CloudSun, music: Music2, maps: Map, files: FolderOpen, photos: GalleryHorizontal,
     translate: Languages, yt: Play, wa: MessageCircle, ig: Instagram, sp: Music2, play: ShoppingBag,
     fb: Facebook, x: X, gm: Mail, map: Map,

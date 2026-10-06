@@ -87,6 +87,8 @@ export const PRESET_APPS: WheelApp[] = [
 
 export const APP_PICKER_CATALOG: WheelApp[] = [
   ...BUILT_IN_APPS,
+  { id: "system-settings", label: "System Settings", to: "intent:#Intent;action=android.settings.SETTINGS;end", emoji: "⚙️" },
+  { id: "file-manager", label: "File Manager", to: "intent:#Intent;action=android.intent.action.OPEN_DOCUMENT;category=android.intent.category.OPENABLE;type=*/*;end", emoji: "📁" },
   ...PRESET_APPS,
   { id: "telegram", label: "Telegram", to: "https://t.me", emoji: "✈️" },
   { id: "discord", label: "Discord", to: "https://discord.com/app", emoji: "🎮" },
