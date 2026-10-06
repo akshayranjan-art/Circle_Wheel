@@ -94,6 +94,7 @@ export function LauncherHome() {
   const [wallpaper, setWallpaper] = useState<Wallpaper>(WALLPAPERS[0] ?? { id: "city", name: "Neon City", src: cityWallpaper });
   const [customWallpaper, setCustomWallpaper] = useState("");
   const [preferences, setPreferences] = useState<LauncherPreferences>(DEFAULT_LAUNCHER_PREFERENCES);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [time, setTime] = useState("");
   const [online, setOnline] = useState(true);
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
@@ -125,6 +126,7 @@ export function LauncherHome() {
     setApps(loadLauncherApps());
     setEdgeApps(loadLauncherEdgeApps());
     setPreferences(loadLauncherPreferences());
+    setPreferencesLoaded(true);
     try {
       const saved = JSON.parse(localStorage.getItem(WALLPAPER_KEY) ?? "null") as { id?: string; custom?: string } | null;
       const preset = WALLPAPERS.find((item) => item.id === saved?.id);
@@ -141,7 +143,7 @@ export function LauncherHome() {
     return () => { window.removeEventListener("beforeinstallprompt", capture); window.removeEventListener("appinstalled", markInstalled); };
   }, []);
 
-  useEffect(() => { document.documentElement.classList.toggle("dark", preferences.darkMode); saveLauncherPreferences(preferences); }, [preferences]);
+  useEffect(() => { if (!preferencesLoaded) return; document.documentElement.classList.toggle("dark", preferences.darkMode); saveLauncherPreferences(preferences); }, [preferences, preferencesLoaded]);
   useEffect(() => { soundFX.setEnabled(preferences.volume > 0); }, [preferences.volume]);
   useEffect(() => {
     const updateTime = () => setTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));

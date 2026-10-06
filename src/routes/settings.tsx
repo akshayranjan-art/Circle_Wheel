@@ -22,12 +22,14 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
   const [preferences, setPreferences] = useState<LauncherPreferences>(DEFAULT_LAUNCHER_PREFERENCES);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
-  useEffect(() => setPreferences(loadLauncherPreferences()), []);
+  useEffect(() => { setPreferences(loadLauncherPreferences()); setPreferencesLoaded(true); }, []);
   useEffect(() => {
+    if (!preferencesLoaded) return;
     saveLauncherPreferences(preferences);
     document.documentElement.classList.toggle("dark", preferences.darkMode);
-  }, [preferences]);
+  }, [preferences, preferencesLoaded]);
 
   const update = (patch: Partial<LauncherPreferences>) => setPreferences((value) => ({ ...value, ...patch }));
 
