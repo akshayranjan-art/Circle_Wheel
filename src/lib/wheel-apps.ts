@@ -14,7 +14,7 @@ export type WheelApp = {
 };
 
 export type LauncherRail = "orbit" | "edge";
-export type LauncherIconPack = "neon-line" | "glossy-3d" | "midnight-gold";
+export type LauncherIconPack = "neon-line" | "glossy-3d" | "midnight-gold" | "liquid-4d";
 
 export type LauncherPreferences = {
   darkMode: boolean;

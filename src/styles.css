@@ -1030,3 +1030,13 @@
 .launcher-app-node { background: linear-gradient(160deg, oklch(0.32 0.04 280 / .95), oklch(0.12 0.02 270 / .97) 55%, oklch(0.04 0 0)) padding-box, conic-gradient(from 210deg, var(--launcher-cyan), var(--launcher-violet), var(--launcher-pink), var(--launcher-cyan)) border-box; backdrop-filter: none; }
 .launcher-app-node, .launcher-empty-slot { transition: none; }
 .launcher-edge-rail { container-type: size; } .launcher-edge-card { flex-shrink: 0; }
+
+/* Dimensional glass pack: static highlights keep spinning lightweight. */
+.launcher-icon-pack--liquid-4d { --glass-hue: 220; --glass-body: oklch(.58 .19 var(--glass-hue)); --glass-deep: oklch(.28 .12 var(--glass-hue)); --glass-light: oklch(.86 .08 var(--glass-hue)); position: relative; overflow: hidden; isolation: isolate; color: var(--foreground); border: 1px solid var(--glass-light); background: radial-gradient(ellipse at 35% 18%, color-mix(in oklab, var(--foreground) 65%, transparent), transparent 48%), linear-gradient(145deg, var(--glass-light), var(--glass-body) 35%, var(--glass-deep) 72%, var(--glass-body)); box-shadow: inset 0 2px 2px color-mix(in oklab, var(--foreground) 85%, transparent), inset 2px 0 3px var(--glass-light), inset -2px -3px 3px var(--glass-deep), 0 3px 5px color-mix(in oklab, var(--background) 65%, transparent); filter: none; }
+.launcher-icon-pack--liquid-4d[data-tone="emerald"] { --glass-hue: 150; }
+.launcher-icon-pack--liquid-4d[data-tone="ruby"] { --glass-hue: 25; }
+.launcher-icon-pack--liquid-4d[data-tone="orchid"] { --glass-hue: 325; }
+.launcher-icon-pack--liquid-4d::before { content: ""; position: absolute; inset: 7%; border: 1px solid color-mix(in oklab, var(--glass-light) 70%, transparent); border-radius: 25%; pointer-events: none; }
+.launcher-icon-pack--liquid-4d::after { content: ""; position: absolute; left: 17%; right: 17%; top: 8%; height: 12%; border-radius: 50%; background: color-mix(in oklab, var(--foreground) 80%, transparent); pointer-events: none; }
+.launcher-icon-pack--liquid-4d svg, .launcher-icon-pack--liquid-4d img { position: relative; z-index: 1; }
+.launcher-pack-sample { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 28%; }
