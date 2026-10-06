@@ -1,5 +1,11 @@
 # Roadmap
 
+## Packs and backgrounds
+
+- [ ] Add a ₹99 realistic glossy icon pack with previews, retaining preview-only payment status
+- [ ] Expand wallpaper choices to 15 images and retain custom upload and URL
+- [ ] Verify pack selection and wallpaper persistence
+
 ## Left rail clearance
 
 - [x] Reduce left rail width and icons, and reserve a gap from rotating orbit shortcuts at narrow screen widths
