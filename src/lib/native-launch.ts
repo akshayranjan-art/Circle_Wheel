@@ -40,6 +40,8 @@ const NATIVE: Record<string, NativeTarget> = {
 };
 
 const SYSTEM: Record<string, { android: string; ios?: string }> = {
+  "system-settings": { android: "intent:#Intent;action=android.settings.SETTINGS;end" },
+  "file-manager": { android: "intent:#Intent;action=android.intent.action.OPEN_DOCUMENT;category=android.intent.category.OPENABLE;type=*/*;end" },
   camera: { android: "intent:#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end" },
   calculator: { android: "intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_CALCULATOR;end" },
   clock: { android: "intent:#Intent;action=android.intent.action.SHOW_ALARMS;end", ios: "clock-alarm://" },
@@ -57,7 +59,7 @@ export function platform(): "android" | "ios" | "other" {
   return "other";
 }
 
-/** Opens the native app when installed, otherwise the web version. Returns false when nothing could be launched. */
+/** Opens native apps with web fallbacks where available. Android-only system actions return false on unsupported platforms. */
 export function launchNative(app: WheelApp): boolean {
   const id = baseId(app.id);
   const os = platform();
