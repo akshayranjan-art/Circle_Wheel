@@ -5,6 +5,8 @@
 - [ ] Add twenty distinct dark, light, glass, peacock and festival themes (thirty total)
 - [ ] Enlarge second circle and align third circle while preserving first circle
 - [ ] Verify pack persistence, circle placement and smooth interactions
+- [ ] Save favorite packs and add search/category/favorites filters
+- [ ] Preview each pack on second and third circles without applying it, then explicitly apply
 
 ## Ten icon themes
 
