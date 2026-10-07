@@ -1,5 +1,11 @@
 # Roadmap
 
+## Expanded icon collection and inner circles
+
+- [ ] Add twenty distinct dark, light, glass, peacock and festival themes (thirty total)
+- [ ] Enlarge second circle and align third circle while preserving first circle
+- [ ] Verify pack persistence, circle placement and smooth interactions
+
 ## Ten icon themes
 
 - [x] Add recognizable brand symbols and ten selectable icon packs
