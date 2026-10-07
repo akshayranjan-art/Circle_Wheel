@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.mycompany.ludolauncher",
+    "sha256_cert_fingerprints":
+    ["96:72:B5:FE:AB:3C:13:4C:1F:AF:5A:ED:B7:4C:CB:EB:02:22:45:FB:4C:E4:26:3D:4B:46:6E:73:25:2A:8F:18"]
+  }
+}]

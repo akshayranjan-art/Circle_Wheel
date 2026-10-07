@@ -1,0 +1,33 @@
+Keystore type: PKCS12
+Keystore provider: SUN
+
+Your keystore contains 1 entry
+
+Alias name: ludolauncher
+Creation date: Sep 25, 2026
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=My Company, OU=My Company, O=My Company, L=My Company, ST=Karnataka, C=India
+Issuer: CN=My Company, OU=My Company, O=My Company, L=My Company, ST=Karnataka, C=India
+Serial number: 98b0e1852e8653c2
+Valid from: Fri Sep 25 22:14:01 UTC 2026 until: Tue Feb 10 22:14:01 UTC 2054
+Certificate fingerprints:
+	 SHA1: 44:2F:27:DA:AF:8B:AE:27:D2:2F:A7:B6:00:BC:83:BA:C3:2B:91:1D
+	 SHA256: 96:72:B5:FE:AB:3C:13:4C:1F:AF:5A:ED:B7:4C:CB:EB:02:22:45:FB:4C:E4:26:3D:4B:46:6E:73:25:2A:8F:18
+Signature algorithm name: SHA256withRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+Extensions: 
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 96 99 27 10 47 D1 D7 AB   13 09 BA E2 52 C6 F6 D8  ..'.G.......R...
+0010: 56 0F 10 2F                                        V../
+]
+]
+
+
+

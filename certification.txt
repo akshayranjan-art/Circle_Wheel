@@ -1,0 +1,24 @@
+---------------------------------------------------
+Here are the ownership and the certification details
+of the Circle 3 side Launcher 7.2
+---------------------------------------------------
+
+app_name - 						Circle 3 side Launcher
+app_alias - 					ludolauncher
+app_author_name - 				My Company
+app_author_organizational - 	My Company
+app_author_organization - 		My Company
+app_author_locality - 			My Company
+app_author_state - 				Karnataka
+app_author_country - 			India
+app_password - 					7KVfDf3RbpBp
+app_versionName - 				versionName "7.2"
+app_versionCode - 				702
+
+---------------------------------------------------
+The certification was created by WebIntoApp.com at
+the Wednesday 7th of October 2026 03:09:15 AM
+
+https://webintoapp.com
+---------------------------------------------------
+
