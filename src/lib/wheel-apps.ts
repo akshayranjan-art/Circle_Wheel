@@ -14,7 +14,8 @@ export type WheelApp = {
 };
 
 export type LauncherRail = "orbit" | "edge";
-export type LauncherIconPack = "neon-line" | "glossy-3d" | "midnight-gold" | "liquid-4d";
+export type LauncherIconPack = "neon-line" | "glossy-3d" | "midnight-gold" | "liquid-4d" | "brand-original" | "chrome-glass" | "neon-outline" | "pearl" | "carbon" | "pop-art";
+export const ICON_PACKS: LauncherIconPack[] = ["neon-line", "brand-original", "glossy-3d", "midnight-gold", "liquid-4d", "chrome-glass", "neon-outline", "pearl", "carbon", "pop-art"];
 
 export type LauncherPreferences = {
   darkMode: boolean;
@@ -25,6 +26,8 @@ export type LauncherPreferences = {
   appLocked: boolean;
   leftIconSize: number;
   iconPack: LauncherIconPack;
+  edgeIconPack?: LauncherIconPack;
+  railStyle?: "glass" | "minimal" | "solid";
   premiumPreview: boolean;
   iconOpacity: number;
   edgeVisible: number;

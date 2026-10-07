@@ -1043,3 +1043,15 @@
 .launcher-icon-pack--liquid-4d::after { content: ""; position: absolute; left: 17%; right: 17%; top: 8%; height: 12%; border-radius: 50%; background: color-mix(in oklab, var(--foreground) 80%, transparent); pointer-events: none; }
 .launcher-icon-pack--liquid-4d svg, .launcher-icon-pack--liquid-4d img { position: relative; z-index: 1; }
 .launcher-pack-sample { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 28%; }
+.launcher-brand-glyph { display: block; width: 62%; height: 62%; background: currentColor; mask-size: contain; mask-position: center; mask-repeat: no-repeat; position: relative; z-index: 2; }
+.launcher-icon-pack--brand-original { background: var(--card); color: var(--primary); border: 1px solid var(--border); filter: none; }
+.launcher-icon-pack--brand-original[data-tone="emerald"] { color: var(--launcher-cyan); }
+.launcher-icon-pack--brand-original[data-tone="ruby"] { color: var(--launcher-pink); }
+.launcher-icon-pack--chrome-glass { color: var(--foreground); background: linear-gradient(140deg, var(--foreground), var(--muted) 30%, var(--background) 52%, var(--muted-foreground)); border: 1px solid var(--foreground); box-shadow: inset 0 2px 4px var(--foreground); }
+.launcher-icon-pack--neon-outline { color: var(--launcher-cyan); background: var(--background); border: 1px solid var(--launcher-cyan); box-shadow: inset 0 0 4px var(--launcher-cyan); }
+.launcher-icon-pack--pearl { color: var(--background); background: linear-gradient(145deg, var(--foreground), var(--muted-foreground)); border: 1px solid var(--foreground); box-shadow: inset 0 2px 3px var(--foreground); }
+.launcher-icon-pack--carbon { color: var(--foreground); background: repeating-linear-gradient(45deg, var(--background) 0 3px, var(--muted) 3px 5px); border: 1px solid var(--muted-foreground); filter: none; }
+.launcher-icon-pack--pop-art { color: var(--primary-foreground); background: var(--primary); border: 2px solid var(--foreground); box-shadow: 2px 2px 0 var(--launcher-pink); filter: none; }
+.launcher-finish--minimal .launcher-app-node, .launcher-finish--minimal .launcher-edge-card { background: var(--background); border: 1px solid var(--border); box-shadow: none; backdrop-filter: none; }
+.launcher-finish--minimal .launcher-orbit-rail { box-shadow: none; opacity: .4; }
+.launcher-finish--solid .launcher-app-node, .launcher-finish--solid .launcher-edge-card { background: var(--card); border: 1px solid var(--primary); backdrop-filter: none; box-shadow: inset 0 1px 0 var(--muted-foreground); }
