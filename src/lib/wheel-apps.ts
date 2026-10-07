@@ -14,8 +14,18 @@ export type WheelApp = {
 };
 
 export type LauncherRail = "orbit" | "edge";
-export type LauncherIconPack = "neon-line" | "glossy-3d" | "midnight-gold" | "liquid-4d" | "brand-original" | "chrome-glass" | "neon-outline" | "pearl" | "carbon" | "pop-art";
-export const ICON_PACKS: LauncherIconPack[] = ["neon-line", "brand-original", "glossy-3d", "midnight-gold", "liquid-4d", "chrome-glass", "neon-outline", "pearl", "carbon", "pop-art"];
+export const ICON_PACKS = ["neon-line", "brand-original", "glossy-3d", "midnight-gold", "liquid-4d", "chrome-glass", "neon-outline", "pearl", "carbon", "pop-art", "amoled-onyx", "moonlight-silver", "porcelain-light", "pastel-cloud", "crystal-clear", "frosted-glass", "peacock-jewel", "emerald-enamel", "rose-quartz", "holographic-opal", "diwali-diya", "holi-splash", "navratri-mirror", "eid-crescent", "christmas-glass", "halloween-night", "lunar-new-year", "sakura-spring", "new-year-confetti", "carnival-prism"] as const;
+export type LauncherIconPack = (typeof ICON_PACKS)[number];
+export type IconPackCategory = "All" | "Dark" | "Light" | "Glass" | "Jewel" | "Festivals";
+export const ICON_PACK_CATEGORIES: IconPackCategory[] = ["All", "Dark", "Light", "Glass", "Jewel", "Festivals"];
+export function iconPackCategory(pack: LauncherIconPack): IconPackCategory {
+  if (["diwali-diya", "holi-splash", "navratri-mirror", "eid-crescent", "christmas-glass", "halloween-night", "lunar-new-year", "sakura-spring", "new-year-confetti", "carnival-prism"].includes(pack)) return "Festivals";
+  if (["peacock-jewel", "emerald-enamel", "rose-quartz", "midnight-gold"].includes(pack)) return "Jewel";
+  if (["brand-original", "pearl", "porcelain-light", "pastel-cloud", "moonlight-silver"].includes(pack)) return "Light";
+  if (["glossy-3d", "liquid-4d", "chrome-glass", "crystal-clear", "frosted-glass", "holographic-opal"].includes(pack)) return "Glass";
+  return "Dark";
+}
+export const iconPackName = (pack: LauncherIconPack) => pack.split("-").map((word) => word === "3d" || word === "4d" ? word.toUpperCase() : word[0]?.toUpperCase() + word.slice(1)).join(" ");
 
 export type LauncherPreferences = {
   darkMode: boolean;
@@ -27,6 +37,7 @@ export type LauncherPreferences = {
   leftIconSize: number;
   iconPack: LauncherIconPack;
   edgeIconPack?: LauncherIconPack;
+  favoriteIconPacks?: LauncherIconPack[];
   railStyle?: "glass" | "minimal" | "solid";
   premiumPreview: boolean;
   iconOpacity: number;
