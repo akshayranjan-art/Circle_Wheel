@@ -1,3 +1,4 @@
+import { BRAND_ICONS } from "@/lib/brand-icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import wallpaper0 from "@/assets/wallpaper-aurora.jpg.asset.json";
 import wallpaper1 from "@/assets/wallpaper-mountains.jpg.asset.json";
@@ -62,6 +63,8 @@ function normalizedTarget(value: string) {
 
 function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: LauncherPreferences["iconPack"] }) {
   const key = app.id.replace(/^(edge-|orbit-)/, "").replace(/-\d{10,}$/, "").replace(/^p-/, "");
+  const brandSlug = ({ wa: "whatsapp", yt: "youtube", ig: "instagram", sp: "spotify", fb: "facebook", gm: "gmail", map: "googlemaps", maps: "googlemaps", chrome: "googlechrome", drive: "googledrive", files: "googledrive", photos: "googlephotos", play: "googleplay" } as Record<string, string>)[key] ?? key;
+  const brand = BRAND_ICONS[brandSlug];
   const Icon = ({
     home: Home, phone: Phone, camera: Camera, messages: MessageCircle, chrome: Globe2,
     calculator: Calculator, clock: Clock3, gallery: GalleryHorizontal, settings: Settings2,
@@ -71,7 +74,7 @@ function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: Launc
     translate: Languages, yt: Play, wa: MessageCircle, ig: Instagram, sp: Music2, play: ShoppingBag,
     fb: Facebook, x: X, gm: Mail, map: Map,
   } as Record<string, typeof Sparkles>)[key] ?? Sparkles;
-  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} data-tone={key === "wa" || key === "sp" || key === "phone" ? "emerald" : key === "yt" || key === "ig" ? "ruby" : key === "music" || key === "gallery" ? "orchid" : "azure"} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
+  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} data-tone={key === "wa" || key === "sp" || key === "phone" ? "emerald" : key === "yt" || key === "ig" ? "ruby" : key === "music" || key === "gallery" ? "orchid" : "azure"} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : brand ? <span className="launcher-brand-glyph" style={{ maskImage: `url(${brand})`, WebkitMaskImage: `url(${brand})` }} /> : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
 }
 
 const ROTATION_KEY = "orbit-launcher-rotation-v1";
@@ -306,7 +309,7 @@ export function LauncherHome() {
   };
 
   return (
-    <div className={cn("launcher-stage", `launcher-pack--${preferences.iconPack}`)} onPointerDown={(event) => { if (event.clientY > window.innerHeight * .72) swipeRef.current = event.clientY; }} onPointerUp={(event) => { if (swipeRef.current !== null && swipeRef.current - event.clientY > 65) setDrawerOpen(true); swipeRef.current = null; }}>
+    <div className={cn("launcher-stage", `launcher-pack--${preferences.iconPack}`, `launcher-finish--${preferences.railStyle ?? "glass"}`)} onPointerDown={(event) => { if (event.clientY > window.innerHeight * .72) swipeRef.current = event.clientY; }} onPointerUp={(event) => { if (swipeRef.current !== null && swipeRef.current - event.clientY > 65) setDrawerOpen(true); swipeRef.current = null; }}>
       <img src={customWallpaper || wallpaper.src} alt="" className={cn("launcher-wallpaper", `launcher-brightness-${Math.round(preferences.brightness / 10) * 10}`)} width={1080} height={1920} />
       <div className="launcher-shade" />
       <header className="launcher-topbar">
@@ -320,7 +323,7 @@ export function LauncherHome() {
         <aside className="launcher-edge-rail" aria-label="Independent edge apps">
           <div ref={edgeScrollRef} className="launcher-edge-scroll" style={{ ["--edge-count" as string]: preferences.edgeVisible }} onScroll={centerEdgeLoop}>
             <Button variant="ghost" className="launcher-edge-add" onClick={() => openEditor("edge")} disabled={edgeApps.length >= EDGE_MAX || preferences.appLocked} aria-label="Add edge app"><Plus /></Button>
-            {edgeLoopApps.map((app, copyIndex) => <Button key={`${app.id}-${copyIndex}`} variant="ghost" className="launcher-edge-card" style={{ height: "calc((100cqh - 2.9rem) / var(--edge-count) - .45rem)", minHeight: 0 }} onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("edge", app); }}><AppIcon app={app} size={Math.min(28, preferences.leftIconSize * .55, 240 / preferences.edgeVisible)} pack={preferences.iconPack} />{preferences.showLabels && preferences.edgeVisible <= 6 && <small>{app.label}</small>}</Button>)}
+            {edgeLoopApps.map((app, copyIndex) => <Button key={`${app.id}-${copyIndex}`} variant="ghost" className="launcher-edge-card" style={{ height: "calc((100cqh - 2.9rem) / var(--edge-count) - .45rem)", minHeight: 0 }} onClick={() => launch(app)} onContextMenu={(event) => { event.preventDefault(); openEditor("edge", app); }}><AppIcon app={app} size={Math.min(28, preferences.leftIconSize * .55, 240 / preferences.edgeVisible)} pack={preferences.edgeIconPack ?? preferences.iconPack} />{preferences.showLabels && preferences.edgeVisible <= 6 && <small>{app.label}</small>}</Button>)}
           </div>
           <span className="launcher-edge-count">{edgeApps.length}/{EDGE_MAX}</span>
         </aside>
