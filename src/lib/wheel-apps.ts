@@ -37,6 +37,7 @@ export type LauncherPreferences = {
   leftIconSize: number;
   iconPack: LauncherIconPack;
   edgeIconPack?: LauncherIconPack;
+  favoriteIconPacks?: LauncherIconPack[];
   railStyle?: "glass" | "minimal" | "solid";
   premiumPreview: boolean;
   iconOpacity: number;
