@@ -1082,3 +1082,11 @@
 .launcher-icon-pack--sakura-spring { --pack-light: oklch(.97 .04 350); --pack-body: oklch(.83 .09 350); --pack-deep: oklch(.6 .1 355); --pack-ink: oklch(.3 .08 350); --pack-edge: oklch(.96 .02 350); --pack-surface: radial-gradient(circle at 10% 10%,var(--pack-light) 0 15%,transparent 17%),radial-gradient(circle at 90% 85%,var(--pack-light) 0 20%,transparent 22%),linear-gradient(var(--pack-body),var(--pack-deep)); }
 .launcher-icon-pack--new-year-confetti { --pack-light: oklch(.93 .13 95); --pack-body: oklch(.45 .13 250); --pack-deep: oklch(.14 .04 260); --pack-ink: oklch(.99 .03 95); --pack-edge: oklch(.85 .13 95); --pack-surface: repeating-linear-gradient(35deg,transparent 0 9px,color-mix(in oklab,var(--pack-edge) 45%,transparent) 9px 11px),linear-gradient(var(--pack-body),var(--pack-deep)); }
 .launcher-icon-pack--carnival-prism { --pack-light: oklch(.87 .16 190); --pack-body: oklch(.62 .22 330); --pack-deep: oklch(.42 .2 280); --pack-ink: oklch(.99 .01 90); --pack-edge: oklch(.9 .16 95); --pack-surface: conic-gradient(from 90deg,var(--pack-body) 0 90deg,var(--pack-light) 90deg 180deg,var(--pack-edge) 180deg 270deg,var(--pack-deep) 270deg); }
+
+.pack-orbit-preview { position: relative; width: 100%; aspect-ratio: 1; max-width: 390px; margin-inline: auto; overflow: hidden; background: var(--background); border-radius: 8px; }
+.pack-preview-ring { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); border: 1px solid var(--primary); border-radius: 50%; opacity: .6; }
+.pack-preview-ring--second { width: 84%; height: 84%; }
+.pack-preview-ring--third { width: 40%; height: 40%; }
+.pack-preview-position { position: absolute; transform: translate(-50%,-50%); width: 10%; aspect-ratio: 1; }
+.pack-preview-position .launcher-pack-sample { width: 100%; height: 100%; }
+.launcher-pack-preview .launcher-pack-sample { width: 32px; height: 32px; }
