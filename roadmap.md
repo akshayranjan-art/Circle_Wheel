@@ -4,7 +4,7 @@
 
 - [x] Add recognizable brand symbols and ten selectable icon packs
 - [x] Add independent left-rail pack and circle/side finish settings
-- [ ] Verify saved settings and logo rendering
+- [x] Verify saved settings and logo rendering
 - [ ] Use the supplied Pngtree artwork — blocked by its download protection; needs an uploaded licensed file
 
 ## Packs and backgrounds
