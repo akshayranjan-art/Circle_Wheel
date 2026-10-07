@@ -16,3 +16,4 @@
 - Persist orbit position on each shortcut so picker choices stay in the exact tapped slot while edge shortcuts remain list-ordered.
 - Keep Android system actions in the native launch registry, using package-independent intents and returning unsupported on other platforms because no equivalent web destination exists.
 - Render dimensional icon packs with static CSS highlights and per-app material tones; avoid animated image assets so wheel rotation stays lightweight.
+- Keep icon pack choices centralized with launcher preferences; edge overrides fall back to the orbit pack, and CDN brand glyphs use a shared asset registry.

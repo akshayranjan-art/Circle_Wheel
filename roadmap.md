@@ -1,5 +1,12 @@
 # Roadmap
 
+## Ten icon themes
+
+- [x] Add recognizable brand symbols and ten selectable icon packs
+- [x] Add independent left-rail pack and circle/side finish settings
+- [ ] Verify saved settings and logo rendering
+- [ ] Use the supplied Pngtree artwork — blocked by its download protection; needs an uploaded licensed file
+
 ## Packs and backgrounds
 
 - [x] Add a ₹99 realistic glossy icon pack with previews, retaining preview-only payment status
