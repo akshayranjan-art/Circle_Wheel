@@ -1,10 +1,11 @@
+import { BRAND_ICONS } from "@/lib/brand-icons";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Crown, Eye, EyeOff, Lock, Moon, RotateCcw, Settings2, Sparkles, Sun, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ICON_PACKS, DEFAULT_LAUNCHER_PREFERENCES, loadLauncherPreferences, saveLauncherPreferences, type LauncherPreferences } from "@/lib/wheel-apps";
+import { ICON_PACKS, ICON_PACK_CATEGORIES, iconPackCategory, iconPackName, type IconPackCategory, DEFAULT_LAUNCHER_PREFERENCES, loadLauncherPreferences, saveLauncherPreferences, type LauncherPreferences } from "@/lib/wheel-apps";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
   const [preferences, setPreferences] = useState<LauncherPreferences>(DEFAULT_LAUNCHER_PREFERENCES);
+  const [packCategory, setPackCategory] = useState<IconPackCategory>("All");
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
   useEffect(() => { setPreferences(loadLauncherPreferences()); setPreferencesLoaded(true); }, []);
@@ -59,8 +61,9 @@ function SettingsPage() {
           </SettingCard>
           <div className="rounded-lg border border-primary/35 bg-card p-4 shadow-sm">
             <div className="flex items-start gap-3"><Sparkles className="mt-1 h-5 w-5 text-primary" /><div><h2 className="font-semibold">Icon packs</h2><p className="text-sm text-muted-foreground">Neon Line · Free. Premium packs · ₹99 each.</p></div></div>
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">{ICON_PACKS.map((pack) => { const paid = pack !== "neon-line" && pack !== "brand-original"; const active = preferences.iconPack === pack; return <Button key={pack} variant={active ? "default" : "outline"} aria-pressed={active} className="h-auto min-h-28 flex-col gap-2 px-2 py-3" onClick={() => { update({ iconPack: pack }); if (paid && !preferences.premiumPreview) toast.info("₹99 pack preview applied — checkout unavailable, no payment charged."); }}><span className={`launcher-pack-sample launcher-icon-pack--${pack}`} data-tone="emerald"><Sparkles className="h-5 w-5" /></span><span className="text-xs capitalize">{pack.replace("-", " ")}</span><small>{paid ? "₹99" : "Free"}</small>{active && <Check className="h-3 w-3" />}</Button>; })}</div>
-            <label className="mt-4 grid gap-2 text-sm">Left rail icon pack<select className="h-10 rounded-md border border-border bg-background px-2 text-foreground" aria-label="Left rail icon pack" value={preferences.edgeIconPack ?? preferences.iconPack} onChange={(event) => { const pack = ICON_PACKS.find((item) => item === event.target.value); if (pack) update({ edgeIconPack: pack }); }}>{ICON_PACKS.map((pack) => <option key={pack} value={pack}>{pack.replace("-", " ")}</option>)}</select></label>
+            <div className="mt-4 flex flex-wrap gap-1">{ICON_PACK_CATEGORIES.map((category) => <Button key={category} variant={packCategory === category ? "default" : "outline"} size="sm" aria-pressed={packCategory === category} onClick={() => setPackCategory(category)}>{category}</Button>)}</div>
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{ICON_PACKS.filter((pack) => packCategory === "All" || iconPackCategory(pack) === packCategory).map((pack) => { const paid = pack !== "neon-line" && pack !== "brand-original"; const active = preferences.iconPack === pack; return <Button key={pack} variant={active ? "default" : "outline"} aria-pressed={active} className="h-auto min-h-28 flex-col gap-2 px-2 py-3" onClick={() => { update({ iconPack: pack }); if (paid && !preferences.premiumPreview) toast.info("₹99 pack preview applied — checkout unavailable, no payment charged."); }}><span className="launcher-pack-preview">{["whatsapp", "youtube", "spotify"].map((brand) => <span key={brand} className={`launcher-pack-sample launcher-icon-pack--${pack} ${ICON_PACKS.indexOf(pack) >= 10 ? "launcher-themed-pack" : ""}`}><span className="launcher-brand-glyph" style={{ maskImage: `url(${BRAND_ICONS[brand]})`, WebkitMaskImage: `url(${BRAND_ICONS[brand]})` }} /></span>)}</span><span className="text-xs">{iconPackName(pack)}</span><small>{paid ? "₹99" : "Free"}</small>{active && <Check className="h-3 w-3" />}</Button>; })}</div>
+            <label className="mt-4 grid gap-2 text-sm">Left rail icon pack<select className="h-10 rounded-md border border-border bg-background px-2 text-foreground" aria-label="Left rail icon pack" value={preferences.edgeIconPack ?? preferences.iconPack} onChange={(event) => { const pack = ICON_PACKS.find((item) => item === event.target.value); if (pack) update({ edgeIconPack: pack }); }}>{ICON_PACKS.map((pack) => <option key={pack} value={pack}>{iconPackName(pack)}</option>)}</select></label>
             <label className="mt-4 grid gap-2 text-sm">Circle and side rail finish<select className="h-10 rounded-md border border-border bg-background px-2 text-foreground" aria-label="Rail finish" value={preferences.railStyle ?? "glass"} onChange={(event) => { const value = event.target.value; if (value === "glass" || value === "minimal" || value === "solid") update({ railStyle: value }); }}><option value="glass">Liquid glass</option><option value="minimal">Minimal lines</option><option value="solid">Solid AMOLED</option></select></label>
             <p className="mt-3 text-xs text-muted-foreground">Preview only · Purchases unavailable</p>
           </div>

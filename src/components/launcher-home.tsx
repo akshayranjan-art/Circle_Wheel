@@ -74,7 +74,7 @@ function AppIcon({ app, size, pack }: { app: WheelApp; size: number; pack: Launc
     translate: Languages, yt: Play, wa: MessageCircle, ig: Instagram, sp: Music2, play: ShoppingBag,
     fb: Facebook, x: X, gm: Mail, map: Map,
   } as Record<string, typeof Sparkles>)[key] ?? Sparkles;
-  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`)} data-tone={key === "wa" || key === "sp" || key === "phone" ? "emerald" : key === "yt" || key === "ig" ? "ruby" : key === "music" || key === "gallery" ? "orchid" : "azure"} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : brand ? <span className="launcher-brand-glyph" style={{ maskImage: `url(${brand})`, WebkitMaskImage: `url(${brand})` }} /> : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
+  return <span className={cn("launcher-app-icon", `launcher-icon-pack--${pack}`, !["neon-line", "brand-original", "glossy-3d", "midnight-gold", "liquid-4d", "chrome-glass", "neon-outline", "pearl", "carbon", "pop-art"].includes(pack) && "launcher-themed-pack")} data-tone={key === "wa" || key === "sp" || key === "phone" ? "emerald" : key === "yt" || key === "ig" ? "ruby" : key === "music" || key === "gallery" ? "orchid" : "azure"} style={{ width: size, height: size, fontSize: size * .58 }}>{app.iconImage ? <img src={app.iconImage} alt="" /> : app.custom ? app.emoji : brand ? <span className="launcher-brand-glyph" style={{ maskImage: `url(${brand})`, WebkitMaskImage: `url(${brand})` }} /> : <Icon aria-hidden="true" style={{ width: size * .52, height: size * .52 }} />}</span>;
 }
 
 const ROTATION_KEY = "orbit-launcher-rotation-v1";
